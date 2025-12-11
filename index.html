@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拒付预警系统 - 入口页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .link-group {
+            display: grid;
+            gap: 12px;
+        }
+        .link-item {
+            display: block;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .link-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+        .link-item .title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .link-item .desc {
+            font-size: 13px;
+            color: #666;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .badge-admin {
+            background: #409EFF;
+            color: white;
+        }
+        .badge-client {
+            background: #1890ff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>拒付预警系统</h1>
+        <p class="subtitle">Chargewipe - Chargeback Alert System</p>
+        
+        <div class="section">
+            <div class="section-title">运营端 (Admin)</div>
+            <div class="link-group">
+                <a href="admin/login.html" class="link-item">
+                    <span class="title">登录页面 <span class="badge badge-admin">Admin</span></span>
+                    <span class="desc">运营端登录入口</span>
+                </a>
+                <a href="admin/dashboard.html" class="link-item">
+                    <span class="title">数据看板</span>
+                    <span class="desc">核心指标、趋势图表、多维度统计</span>
+                </a>
+                <a href="admin/customers.html" class="link-item">
+                    <span class="title">客户管理</span>
+                    <span class="desc">客户CRUD、定价设置、余额管理</span>
+                </a>
+                <a href="admin/providers.html" class="link-item">
+                    <span class="title">服务商管理</span>
+                    <span class="desc">服务商CRUD、API配置、成本设置</span>
+                </a>
+                <a href="admin/alerts.html" class="link-item">
+                    <span class="title">预警明细</span>
+                    <span class="desc">预警查询、手动分配、批量导出</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">客户端 (Client)</div>
+            <div class="link-group">
+                <a href="client/login.html" class="link-item">
+                    <span class="title">登录页面 <span class="badge badge-client">Client</span></span>
+                    <span class="desc">客户端登录入口（含忘记密码）</span>
+                </a>
+                <a href="client/authorizations.html" class="link-item">
+                    <span class="title">授权管理</span>
+                    <span class="desc">新增授权、查看状态、编辑邮箱</span>
+                </a>
+                <a href="client/alerts.html" class="link-item">
+                    <span class="title">预警管理</span>
+                    <span class="desc">预警列表、ETHOCA反馈、RDR查看</span>
+                </a>
+                <a href="client/wallet.html" class="link-item">
+                    <span class="title">钱包管理</span>
+                    <span class="desc">在线充值、线下转账、交易明细</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
