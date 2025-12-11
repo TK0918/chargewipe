@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预警明细 - 拒付预警系统运营端</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .breadcrumb {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            padding: 15px;
+            background: var(--border-extra-light);
+            border-radius: 4px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">拒付预警系统 - 运营端</div>
+        <div class="user-info">
+            <span>管理员</span>
+            <a href="login.html" class="action-link">退出</a>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" style="text-decoration: none; color: inherit;">数据看板</a></li>
+                <li><a href="customers.html" style="text-decoration: none; color: inherit;">客户管理</a></li>
+                <li><a href="providers.html" style="text-decoration: none; color: inherit;">服务商管理</a></li>
+                <li class="active">预警明细</li>
+            </ul>
+        </div>
+        <div class="content-area">
+            <!-- 预警列表页 -->
+            <div id="list-page" class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">预警明细</h1>
+                    <button class="btn btn-default" onclick="exportExcel()">批量导出Excel</button>
+                </div>
+
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <form class="search-form" onsubmit="return false;">
+                        <div class="search-item">
+                            <label class="form-label">预警类型</label>
+                            <select class="form-select" id="searchType">
+                                <option value="">全部</option>
+                                <option value="ETHOCA">ETHOCA</option>
+                                <option value="RDR">RDR</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">客户名称</label>
+                            <input type="text" class="form-input" placeholder="请输入客户名称" id="searchCustomer">
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">服务商</label>
+                            <select class="form-select" id="searchProvider">
+                                <option value="">全部</option>
+                                <option value="PROV001">Provider A</option>
+                                <option value="PROV002">Provider B</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">处理状态</label>
+                            <select class="form-select" id="searchProcessStatus">
+                                <option value="">全部</option>
+                                <option value="pending">待反馈</option>
+                                <option value="completed">已反馈</option>
+                                <option value="none">无需处理</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">扣费状态</label>
+                            <select class="form-select" id="searchChargeStatus">
+                                <option value="">全部</option>
+                                <option value="charged">已扣费</option>
+                                <option value="uncharged">未扣费</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">接收时间</label>
+                            <input type="date" class="form-input" id="searchDate">
+                        </div>
+                        <div class="search-item">
+                            <button type="button" class="btn btn-primary" onclick="searchAlerts()">搜索</button>
+                            <button type="reset" class="btn btn-default" style="margin-left: 10px;">重置</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 预警列表 -->
+                <div class="card">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>预警ID</th>
+                                <th>预警类型</th>
+                                <th>Descriptor</th>
+                                <th>客户名称</th>
+                                <th>服务商</th>
+                                <th>交易金额</th>
+                                <th>处理状态</th>
+                                <th>扣费状态</th>
+                                <th>接收时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertTableBody">
+                            <tr>
+                                <td>ALT001</td>
+                                <td><span class="tag tag-info">ETHOCA</span></td>
+                                <td>MYSHOP*STORE</td>
+                                <td>Customer A</td>
+                                <td>Provider A</td>
+                                <td>$125.50</td>
+                                <td><span class="tag tag-warning">待反馈</span></td>
+                                <td><span class="tag tag-success">已扣费</span></td>
+                                <td>2025-01-15 10:30:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('ALT001')" class="action-link">详情</a>
+                                        <a href="javascript:void(0)" onclick="showAssign('ALT001')" class="action-link">分配</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ALT002</td>
+                                <td><span class="tag tag-info">RDR</span></td>
+                                <td>STORE*SHOP</td>
+                                <td>Customer B</td>
+                                <td>Provider B</td>
+                                <td>$89.99</td>
+                                <td><span class="tag tag-info">无需处理</span></td>
+                                <td><span class="tag tag-success">已扣费</span></td>
+                                <td>2025-01-15 11:15:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('ALT002')" class="action-link">详情</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ALT003</td>
+                                <td><span class="tag tag-info">ETHOCA</span></td>
+                                <td>MYSHOP*STORE</td>
+                                <td>-</td>
+                                <td>Provider A</td>
+                                <td>$156.00</td>
+                                <td><span class="tag tag-warning">待反馈</span></td>
+                                <td><span class="tag tag-danger">未扣费</span></td>
+                                <td>2025-01-15 12:00:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('ALT003')" class="action-link">详情</a>
+                                        <a href="javascript:void(0)" onclick="showAssign('ALT003')" class="action-link">分配</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button>上一页</button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>下一页</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预警详情页 -->
+            <div id="detail-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">预警明细</a> > 预警详情
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">预警详情</h1>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="showAssign(currentAlertId)" id="assignBtn" style="display: none;">分配客户</button>
+                        <button class="btn btn-default" onclick="markCharged()" id="markChargedBtn" style="display: none;">标记已扣费</button>
+                    </div>
+                </div>
+
+                <!-- 预警基本信息 -->
+                <div class="card">
+                    <div class="card-header">预警基本信息</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">预警ID</div>
+                            <div class="info-value" id="detailAlertId">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">预警类型</div>
+                            <div class="info-value" id="detailAlertType">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Descriptor</div>
+                            <div class="info-value" id="detailDescriptor">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">交易金额</div>
+                            <div class="info-value" id="detailTransactionAmount">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">交易时间</div>
+                            <div class="info-value" id="detailTransactionTime">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">接收时间</div>
+                            <div class="info-value" id="detailReceivedTime">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">卡号后4位</div>
+                            <div class="info-value" id="detailCardLast4">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">处理状态</div>
+                            <div class="info-value" id="detailProcessStatus">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 扣费信息 -->
+                <div class="card">
+                    <div class="card-header">扣费信息</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">扣费状态</div>
+                            <div class="info-value" id="detailChargeStatus">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">扣费金额</div>
+                            <div class="info-value" id="detailChargeAmount">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">客户价格</div>
+                            <div class="info-value" id="detailCustomerPrice">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">服务商成本</div>
+                            <div class="info-value" id="detailProviderCost">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">毛利</div>
+                            <div class="info-value" id="detailProfit">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 关联信息 -->
+                <div class="card">
+                    <div class="card-header">关联信息</div>
+                    <table class="table" style="max-width: 600px;">
+                        <tr>
+                            <td style="width: 150px; font-weight: 600;">客户名称</td>
+                            <td id="detailCustomerName">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">服务商</td>
+                            <td id="detailProviderName">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">授权ID</td>
+                            <td id="detailAuthorizationId">-</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- ETHOCA反馈信息（仅ETHOCA类型显示） -->
+                <div class="card" id="feedbackInfoCard" style="display: none;">
+                    <div class="card-header">反馈信息</div>
+                    <table class="table" style="max-width: 600px;">
+                        <tr>
+                            <td style="width: 150px; font-weight: 600;">退款单号</td>
+                            <td id="detailRefundId">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">退款金额</td>
+                            <td id="detailRefundAmount">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">退款时间</td>
+                            <td id="detailRefundTime">-</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 预警分配页 -->
+            <div id="assign-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">预警明细</a> > 分配客户
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">分配预警给客户</h1>
+                </div>
+
+                <div class="card">
+                    <div class="form-group">
+                        <label class="form-label">预警ID</label>
+                        <input type="text" class="form-input" id="assignAlertId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descriptor</label>
+                        <input type="text" class="form-input" id="assignDescriptor" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">预警类型</label>
+                        <input type="text" class="form-input" id="assignAlertType" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">选择客户 <span class="required">*</span></label>
+                        <select class="form-select" id="assignCustomer" required>
+                            <option value="">请选择客户</option>
+                            <option value="CUST001">Customer A</option>
+                            <option value="CUST002">Customer B</option>
+                            <option value="CUST003">Customer C</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <p style="font-size: 12px; color: var(--text-secondary);">
+                            分配后系统将自动尝试扣费，如果客户余额充足则立即扣费，余额不足则标记为未扣费
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" onclick="confirmAssign()">确认分配</button>
+                        <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showPage('list-page')">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAlertId = '';
+
+        // 页面切换函数
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 显示预警详情
+        function showDetail(alertId) {
+            currentAlertId = alertId;
+            // 模拟数据
+            document.getElementById('detailAlertId').textContent = alertId;
+            document.getElementById('detailAlertType').innerHTML = '<span class="tag tag-info">ETHOCA</span>';
+            document.getElementById('detailDescriptor').textContent = 'MYSHOP*STORE';
+            document.getElementById('detailTransactionAmount').textContent = '$125.50';
+            document.getElementById('detailTransactionTime').textContent = '2025-01-14 10:30:00';
+            document.getElementById('detailReceivedTime').textContent = '2025-01-15 10:30:00';
+            document.getElementById('detailCardLast4').textContent = '1234';
+            document.getElementById('detailProcessStatus').innerHTML = '<span class="tag tag-warning">待反馈</span>';
+            document.getElementById('detailChargeStatus').innerHTML = '<span class="tag tag-success">已扣费</span>';
+            document.getElementById('detailChargeAmount').textContent = '$10.00';
+            document.getElementById('detailCustomerPrice').textContent = '$10.00';
+            document.getElementById('detailProviderCost').textContent = '$8.00';
+            document.getElementById('detailProfit').textContent = '$2.00';
+            document.getElementById('detailCustomerName').textContent = 'Customer A';
+            document.getElementById('detailProviderName').textContent = 'Provider A';
+            document.getElementById('detailAuthorizationId').textContent = 'AUTH001';
+
+            // 显示/隐藏操作按钮
+            const assignBtn = document.getElementById('assignBtn');
+            const markChargedBtn = document.getElementById('markChargedBtn');
+            const feedbackCard = document.getElementById('feedbackInfoCard');
+            
+            // 如果未分配客户，显示分配按钮
+            if (document.getElementById('detailCustomerName').textContent === '-') {
+                assignBtn.style.display = 'inline-block';
+            } else {
+                assignBtn.style.display = 'none';
+            }
+
+            // 如果未扣费，显示标记已扣费按钮
+            if (document.getElementById('detailChargeStatus').textContent.includes('未扣费')) {
+                markChargedBtn.style.display = 'inline-block';
+            } else {
+                markChargedBtn.style.display = 'none';
+            }
+
+            // 如果是ETHOCA且已反馈，显示反馈信息
+            if (alertId === 'ALT003') {
+                feedbackCard.style.display = 'block';
+                document.getElementById('detailRefundId').textContent = 'REF001';
+                document.getElementById('detailRefundAmount').textContent = '$125.50';
+                document.getElementById('detailRefundTime').textContent = '2025-01-15 14:00:00';
+            } else {
+                feedbackCard.style.display = 'none';
+            }
+
+            showPage('detail-page');
+        }
+
+        // 显示分配页面
+        function showAssign(alertId) {
+            currentAlertId = alertId;
+            document.getElementById('assignAlertId').value = alertId;
+            document.getElementById('assignDescriptor').value = 'MYSHOP*STORE';
+            document.getElementById('assignAlertType').value = 'ETHOCA';
+            document.getElementById('assignCustomer').value = '';
+            
+            showPage('assign-page');
+        }
+
+        // 确认分配
+        function confirmAssign() {
+            const customerId = document.getElementById('assignCustomer').value;
+            if (!customerId) {
+                alert('请选择客户');
+                return;
+            }
+            alert('分配成功！系统将自动尝试扣费（需要连接后端API）');
+            showPage('list-page');
+        }
+
+        // 标记已扣费
+        function markCharged() {
+            if (confirm('确认标记为已扣费？')) {
+                alert('标记成功（需要连接后端API）');
+                showDetail(currentAlertId);
+            }
+        }
+
+        // 搜索预警
+        function searchAlerts() {
+            alert('搜索功能需要连接后端API');
+        }
+
+        // 导出Excel
+        function exportExcel() {
+            alert('导出Excel功能需要连接后端API');
+        }
+    </script>
+</body>
+</html>

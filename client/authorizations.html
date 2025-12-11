@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorizations - Chargeback Alert System</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .breadcrumb {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .form-section {
+            margin-bottom: 24px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .conditional-fields {
+            margin-top: 16px;
+            padding-left: 24px;
+            border-left: 2px solid var(--primary-color);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+        .status-processing {
+            background: #fffbe6;
+            color: var(--warning-color);
+            border: 1px solid #ffe58f;
+        }
+        .status-active {
+            background: #f6ffed;
+            color: var(--success-color);
+            border: 1px solid #b7eb8f;
+        }
+        .status-failed {
+            background: #fff1f0;
+            color: var(--danger-color);
+            border: 1px solid #ffccc7;
+        }
+        .status-disabled {
+            background: #f4f4f5;
+            color: var(--text-secondary);
+            border: 1px solid #d3d4d6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Chargeback Alert System</div>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="authorizations.html" class="active">Authorizations</a></li>
+                <li><a href="alerts.html">Alerts</a></li>
+                <li><a href="wallet.html">Wallet</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <span>Customer A</span>
+            <a href="login.html" class="action-link">Logout</a>
+        </div>
+    </div>
+    <div class="main-content">
+        <!-- 授权列表页 -->
+        <div id="list-page" class="page-section active">
+            <div class="page-header">
+                <h1 class="page-title">Authorizations</h1>
+                <a href="javascript:void(0)" onclick="showPage('new-page')" class="btn btn-primary">New Authorization</a>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-item">
+                        <label class="form-label">Authorization Mode</label>
+                        <select class="form-select" id="searchMode">
+                            <option value="">All</option>
+                            <option value="ETHOCA">ETHOCA</option>
+                            <option value="RDR">RDR</option>
+                        </select>
+                    </div>
+                    <div class="search-item">
+                        <label class="form-label">Provider</label>
+                        <select class="form-select" id="searchProvider">
+                            <option value="">All</option>
+                            <option value="PROV001">Provider A</option>
+                            <option value="PROV002">Provider B</option>
+                        </select>
+                    </div>
+                    <div class="search-item">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="searchStatus">
+                            <option value="">All</option>
+                            <option value="processing">Processing</option>
+                            <option value="active">Active</option>
+                            <option value="failed">Failed</option>
+                            <option value="disabled">Disabled</option>
+                        </select>
+                    </div>
+                    <div class="search-item">
+                        <button type="button" class="btn btn-primary" onclick="searchAuthorizations()">Search</button>
+                        <button type="reset" class="btn btn-default" style="margin-left: 8px;">Reset</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 授权列表 -->
+            <div class="card">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Descriptor</th>
+                            <th>Authorization Mode</th>
+                            <th>Provider</th>
+                            <th>Notification Email</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="authorizationTableBody">
+                        <tr>
+                            <td>MYSHOP*STORE</td>
+                            <td>ETHOCA, RDR</td>
+                            <td>Provider A</td>
+                            <td>alerts@example.com</td>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>2024-12-02 09:00:00</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="javascript:void(0)" onclick="showDetail('AUTH001')" class="action-link">View</a>
+                                    <a href="javascript:void(0)" onclick="showEditEmail('AUTH001')" class="action-link">Edit Email</a>
+                                    <a href="javascript:void(0)" onclick="disableAuth('AUTH001')" class="action-link" style="color: var(--danger-color);">Disable</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>STORE*SHOP</td>
+                            <td>ETHOCA</td>
+                            <td>Provider B</td>
+                            <td>notify@example.com</td>
+                            <td><span class="status-badge status-processing">Processing</span></td>
+                            <td>2024-12-10 14:30:00</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="javascript:void(0)" onclick="showDetail('AUTH002')" class="action-link">View</a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>SHOP*MYSTORE</td>
+                            <td>RDR</td>
+                            <td>Provider A</td>
+                            <td>alerts@example.com</td>
+                            <td><span class="status-badge status-failed">Failed</span></td>
+                            <td>2024-12-08 11:20:00</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="javascript:void(0)" onclick="showDetail('AUTH003')" class="action-link">View</a>
+                                    <a href="javascript:void(0)" onclick="showPage('new-page')" class="action-link">Retry</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <button>Previous</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>Next</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增授权页 -->
+        <div id="new-page" class="page-section">
+            <div class="breadcrumb">
+                <a onclick="showPage('list-page')">Authorizations</a> > New Authorization
+            </div>
+            <div class="page-header">
+                <h1 class="page-title">New Authorization</h1>
+            </div>
+
+            <div class="card">
+                <form id="authorizationNewForm">
+                    <div class="form-section">
+                        <div class="form-section-title">Basic Information</div>
+                        <div class="form-group">
+                            <label class="form-label">Descriptor <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="descriptor" placeholder="e.g. MYSHOP*STORE" required>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                Store identifier that appears on credit card statements
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Provider <span class="required">*</span></label>
+                            <select class="form-select" name="provider_id" required>
+                                <option value="">Select Provider</option>
+                                <option value="PROV001">Provider A</option>
+                                <option value="PROV002">Provider B</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">Authorization Mode</div>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="ethoca" name="modes" value="ETHOCA">
+                                <label for="ethoca">ETHOCA</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="rdr" name="modes" value="RDR">
+                                <label for="rdr">RDR</label>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                            You can select both ETHOCA and RDR modes
+                        </p>
+                    </div>
+
+                    <!-- RDR Required Fields -->
+                    <div class="form-section" id="rdrFields" style="display: none;">
+                        <div class="form-section-title">RDR Required Information</div>
+                        <div class="conditional-fields">
+                            <div class="form-group">
+                                <label class="form-label">BIN (Bank Identification Number) <span class="required">*</span></label>
+                                <input type="text" class="form-input" name="bin" placeholder="6 digits" maxlength="6" pattern="[0-9]{6}">
+                                <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                    First 6 digits of the card number
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CAID (Card Acceptor ID) <span class="required">*</span></label>
+                                <input type="text" class="form-input" name="caid" placeholder="Enter CAID">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">Notification Settings</div>
+                        <div class="form-group">
+                            <label class="form-label">Notification Email <span class="required">*</span></label>
+                            <input type="email" class="form-input" name="notification_email" placeholder="Enter email for alerts" required>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                Email address where alerts will be sent
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Submit Authorization</button>
+                        <button type="button" class="btn btn-default" style="margin-left: 8px;" onclick="showPage('list-page')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 授权详情页 -->
+        <div id="detail-page" class="page-section">
+            <div class="breadcrumb">
+                <a onclick="showPage('list-page')">Authorizations</a> > Authorization Details
+            </div>
+            <div class="page-header">
+                <h1 class="page-title">Authorization Details</h1>
+                <div class="action-buttons" id="detailActions">
+                    <button class="btn btn-primary" onclick="showEditEmail(currentAuthId)" id="editEmailBtn">Edit Email</button>
+                    <button class="btn btn-default" onclick="enableAuth(currentAuthId)" id="enableBtn" style="display: none;">Enable</button>
+                    <button class="btn btn-danger" onclick="disableAuth(currentAuthId)" id="disableBtn" style="display: none;">Disable</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Basic Information</div>
+                <table class="table" style="max-width: 600px;">
+                    <tr>
+                        <td style="width: 200px; font-weight: 600;">Descriptor</td>
+                        <td id="detailDescriptor">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Authorization Mode</td>
+                        <td id="detailModes">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Provider</td>
+                        <td id="detailProvider">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Notification Email</td>
+                        <td id="detailEmail">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Status</td>
+                        <td id="detailStatus">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">BIN</td>
+                        <td id="detailBin">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">CAID</td>
+                        <td id="detailCaid">-</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">Created At</td>
+                        <td id="detailCreatedAt">-</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Status History</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Time</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statusHistory">
+                        <tr>
+                            <td><span class="status-badge status-active">Active</span></td>
+                            <td>2024-12-05 10:00:00</td>
+                            <td>Provider approved</td>
+                        </tr>
+                        <tr>
+                            <td><span class="status-badge status-processing">Processing</span></td>
+                            <td>2024-12-02 09:00:00</td>
+                            <td>Submitted to provider</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 编辑邮箱页 -->
+        <div id="edit-email-page" class="page-section">
+            <div class="breadcrumb">
+                <a onclick="showPage('list-page')">Authorizations</a> > Edit Email
+            </div>
+            <div class="page-header">
+                <h1 class="page-title">Edit Notification Email</h1>
+            </div>
+
+            <div class="card">
+                <form id="editEmailForm">
+                    <div class="form-group">
+                        <label class="form-label">Descriptor</label>
+                        <input type="text" class="form-input" id="editEmailDescriptor" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Current Email</label>
+                        <input type="email" class="form-input" id="editEmailCurrent" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">New Notification Email <span class="required">*</span></label>
+                        <input type="email" class="form-input" name="notification_email" id="editEmailNew" required>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            Email address where alerts will be sent
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-default" style="margin-left: 8px;" onclick="showDetail(currentAuthId)">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAuthId = '';
+
+        // 页面切换函数
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 显示授权详情
+        function showDetail(authId) {
+            currentAuthId = authId;
+            // 模拟数据
+            document.getElementById('detailDescriptor').textContent = 'MYSHOP*STORE';
+            document.getElementById('detailModes').textContent = 'ETHOCA, RDR';
+            document.getElementById('detailProvider').textContent = 'Provider A';
+            document.getElementById('detailEmail').textContent = 'alerts@example.com';
+            document.getElementById('detailStatus').innerHTML = '<span class="status-badge status-active">Active</span>';
+            document.getElementById('detailBin').textContent = '123456';
+            document.getElementById('detailCaid').textContent = 'CAID001';
+            document.getElementById('detailCreatedAt').textContent = '2024-12-02 09:00:00';
+
+            // 显示/隐藏操作按钮
+            const editEmailBtn = document.getElementById('editEmailBtn');
+            const enableBtn = document.getElementById('enableBtn');
+            const disableBtn = document.getElementById('disableBtn');
+            
+            editEmailBtn.style.display = 'inline-block';
+            enableBtn.style.display = 'none';
+            disableBtn.style.display = 'inline-block';
+
+            showPage('detail-page');
+        }
+
+        // 显示编辑邮箱页面
+        function showEditEmail(authId) {
+            currentAuthId = authId;
+            document.getElementById('editEmailDescriptor').value = 'MYSHOP*STORE';
+            document.getElementById('editEmailCurrent').value = 'alerts@example.com';
+            document.getElementById('editEmailNew').value = '';
+            
+            showPage('edit-email-page');
+        }
+
+        // 停用授权
+        function disableAuth(authId) {
+            if (confirm('Are you sure you want to disable this authorization?')) {
+                alert('Authorization disabled (requires backend API)');
+                showPage('list-page');
+            }
+        }
+
+        // 启用授权
+        function enableAuth(authId) {
+            alert('Authorization enabled (requires backend API)');
+            showPage('list-page');
+        }
+
+        // 搜索授权
+        function searchAuthorizations() {
+            alert('Search functionality requires backend API');
+        }
+
+        // RDR字段显示/隐藏
+        document.getElementById('rdr').addEventListener('change', function() {
+            const rdrFields = document.getElementById('rdrFields');
+            const binInput = document.querySelector('input[name="bin"]');
+            const caidInput = document.querySelector('input[name="caid"]');
+            
+            if (this.checked) {
+                rdrFields.style.display = 'block';
+                binInput.required = true;
+                caidInput.required = true;
+            } else {
+                rdrFields.style.display = 'none';
+                binInput.required = false;
+                caidInput.required = false;
+            }
+        });
+
+        // 表单提交
+        document.getElementById('authorizationNewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ethocaChecked = document.getElementById('ethoca').checked;
+            const rdrChecked = document.getElementById('rdr').checked;
+            
+            if (!ethocaChecked && !rdrChecked) {
+                alert('Please select at least one authorization mode');
+                return;
+            }
+
+            if (rdrChecked) {
+                const bin = document.querySelector('input[name="bin"]').value;
+                const caid = document.querySelector('input[name="caid"]').value;
+                if (!bin || !caid) {
+                    alert('BIN and CAID are required for RDR mode');
+                    return;
+                }
+            }
+
+            alert('Authorization submitted (requires backend API). Status will be Processing for 3-4 days.');
+            showPage('list-page');
+        });
+
+        document.getElementById('editEmailForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Email updated (requires backend API)');
+            showDetail(currentAuthId);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户管理 - 拒付预警系统运营端</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .breadcrumb {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-lighter);
+        }
+        .pricing-tiers {
+            margin-top: 15px;
+        }
+        .tier-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-end;
+            padding: 15px;
+            background: var(--bg-lighter);
+            border-radius: 4px;
+        }
+        .tier-item input {
+            flex: 1;
+        }
+        .tier-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 0 0 250px;
+        }
+        .tier-range input {
+            flex: 1;
+            min-width: 80px;
+        }
+        .tier-range input:disabled {
+            background-color: var(--bg-lighter);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .tier-range .tier-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .tier-prices {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+        }
+        .tier-prices input {
+            flex: 1;
+        }
+        .tier-actions {
+            flex: 0 0 auto;
+        }
+        .tier-item.first-tier .tier-actions,
+        .tier-item.last-tier .tier-actions {
+            display: none;
+        }
+        .add-tier-btn {
+            margin-top: 15px;
+        }
+        .balance-history {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">拒付预警系统 - 运营端</div>
+        <div class="user-info">
+            <span>管理员</span>
+            <a href="login.html" class="action-link">退出</a>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="dashboard.html" style="text-decoration: none; color: inherit;">数据看板</a></li>
+                <li class="active">客户管理</li>
+                <li><a href="providers.html" style="text-decoration: none; color: inherit;">服务商管理</a></li>
+                <li><a href="alerts.html" style="text-decoration: none; color: inherit;">预警明细</a></li>
+            </ul>
+        </div>
+        <div class="content-area">
+            <!-- 客户列表页 -->
+            <div id="list-page" class="page-section active">
+                <div class="page-header">
+                    <h1 class="page-title">客户管理</h1>
+                    <button class="btn btn-primary" onclick="showPage('new-page')">新增客户</button>
+                </div>
+
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <form class="search-form" onsubmit="return false;">
+                        <div class="search-item">
+                            <label class="form-label">客户名称</label>
+                            <input type="text" class="form-input" placeholder="请输入客户名称" id="searchName">
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-input" placeholder="请输入邮箱" id="searchEmail">
+                        </div>
+                        <div class="search-item">
+                            <label class="form-label">账号状态</label>
+                            <select class="form-select" id="searchStatus">
+                                <option value="">全部</option>
+                                <option value="active">正常</option>
+                                <option value="disabled">已停用</option>
+                            </select>
+                        </div>
+                        <div class="search-item">
+                            <button type="button" class="btn btn-primary" onclick="searchCustomers()">搜索</button>
+                            <button type="reset" class="btn btn-default" style="margin-left: 10px;">重置</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 客户列表 -->
+                <div class="card">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>客户ID</th>
+                                <th>客户名称</th>
+                                <th>联系邮箱</th>
+                                <th>账号状态</th>
+                                <th>当前余额</th>
+                                <th>授权数量</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <tr>
+                                <td>CUST001</td>
+                                <td>Customer A</td>
+                                <td>customerA@example.com</td>
+                                <td><span class="tag tag-success">正常</span></td>
+                                <td>$2,340.00</td>
+                                <td>5</td>
+                                <td>2024-12-01 10:00:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('CUST001')" class="action-link">详情</a>
+                                        <a href="javascript:void(0)" onclick="showEdit('CUST001')" class="action-link">编辑</a>
+                                        <a href="javascript:void(0)" onclick="showPricing('CUST001')" class="action-link">定价</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>CUST002</td>
+                                <td>Customer B</td>
+                                <td>customerB@example.com</td>
+                                <td><span class="tag tag-success">正常</span></td>
+                                <td>$1,890.00</td>
+                                <td>3</td>
+                                <td>2024-12-05 14:30:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('CUST002')" class="action-link">详情</a>
+                                        <a href="javascript:void(0)" onclick="showEdit('CUST002')" class="action-link">编辑</a>
+                                        <a href="javascript:void(0)" onclick="showPricing('CUST002')" class="action-link">定价</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button>上一页</button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>下一页</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 新增客户页 -->
+            <div id="new-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">客户管理</a> > 新增客户
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">新增客户</h1>
+                </div>
+
+                <div class="card">
+                    <form id="customerNewForm">
+                        <!-- 基本信息 -->
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-group">
+                                <label class="form-label">客户名称 <span class="required">*</span></label>
+                                <input type="text" class="form-input" name="customer_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">联系邮箱 <span class="required">*</span></label>
+                                <input type="email" class="form-input" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">密码 <span class="required">*</span></label>
+                                <input type="password" class="form-input" name="password" required>
+                            </div>
+                        </div>
+
+                        <!-- 余额设置 -->
+                        <div class="form-section" style="display: none;">
+                            <div class="form-section-title">余额设置</div>
+                            <div class="form-group">
+                                <label class="form-label">初始余额</label>
+                                <input type="number" class="form-input" name="balance" value="0" step="0.01" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">余额预警阈值</label>
+                                <input type="number" class="form-input" name="balance_threshold" value="1000" step="0.01" min="0">
+                            </div>
+                        </div>
+
+                        <!-- 定价设置 -->
+                        <div class="form-section">
+                            <div class="form-section-title">定价设置</div>
+                            <div class="form-group">
+                                <label class="form-label">定价模式 <span class="required">*</span></label>
+                                <select class="form-select" name="pricing_mode" id="pricingMode" required onchange="togglePricingMode()">
+                                    <option value="fixed">固定价格</option>
+                                    <option value="tier">阶梯价格</option>
+                                </select>
+                            </div>
+
+                            <!-- 固定价格 -->
+                            <div id="fixedPricing" class="pricing-section">
+                                <div class="form-group">
+                                    <label class="form-label">ETHOCA单价 ($)</label>
+                                    <input type="number" class="form-input" name="ethoca_price" step="0.01" min="0" placeholder="10.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">RDR单价 ($)</label>
+                                    <input type="number" class="form-input" name="rdr_price" step="0.01" min="0" placeholder="8.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CDRN单价 ($)</label>
+                                    <input type="number" class="form-input" name="cdrn_price" step="0.01" min="0" placeholder="9.00">
+                                </div>
+                            </div>
+
+                            <!-- 阶梯价格 -->
+                            <div id="tierPricing" class="pricing-section" style="display: none;">
+                                <div class="pricing-tiers" id="tierPricingContainer">
+                                    <!-- 首条阶梯 -->
+                                    <div class="tier-item first-tier" data-tier-index="0">
+                                        <div class="tier-range">
+                                            <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="tier_start[]" disabled>
+                                            <span>-</span>
+                                            <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="tier_end[]" onchange="updateTierRanges('tierPricingContainer')">
+                                        </div>
+                                        <div class="tier-prices">
+                                            <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
+                                            <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
+                                            <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                                        </div>
+                                        <div class="tier-actions">
+                                            <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                        </div>
+                                    </div>
+                                    <!-- 最后阶梯 -->
+                                    <div class="tier-item last-tier" data-tier-index="1">
+                                        <div class="tier-range">
+                                            <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="tier_start[]" disabled>
+                                            <span class="tier-label">及以上</span>
+                                        </div>
+                                        <div class="tier-prices">
+                                            <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
+                                            <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
+                                            <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                                        </div>
+                                        <div class="tier-actions">
+                                            <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingContainer')">添加阶梯</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">创建客户</button>
+                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showPage('list-page')">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 客户详情页 -->
+            <div id="detail-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">客户管理</a> > 客户详情
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">客户详情</h1>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="showEdit(currentCustomerId)">编辑</button>
+                        <button class="btn btn-default" onclick="showPricing(currentCustomerId)">设置价格</button>
+                        <button class="btn btn-default" onclick="showBalance(currentCustomerId)">余额管理</button>
+                    </div>
+                </div>
+
+                <!-- 基本信息 -->
+                <div class="card">
+                    <div class="card-header">基本信息</div>
+                    <table class="table" style="max-width: 600px;">
+                        <tr>
+                            <td style="width: 150px; font-weight: 600;">客户ID</td>
+                            <td id="detailCustomerId">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">客户名称</td>
+                            <td id="detailCustomerName">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">联系邮箱</td>
+                            <td id="detailEmail">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">账号状态</td>
+                            <td id="detailStatus">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">当前余额</td>
+                            <td id="detailBalance">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">余额预警阈值</td>
+                            <td id="detailThreshold">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">创建时间</td>
+                            <td id="detailCreatedAt">-</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- 授权列表 -->
+                <div class="card">
+                    <div class="card-header">授权列表</div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Descriptor</th>
+                                <th>授权模式</th>
+                                <th>服务商</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailAuthorizations">
+                            <tr>
+                                <td>MYSHOP*STORE</td>
+                                <td>ETHOCA, RDR</td>
+                                <td>Provider A</td>
+                                <td><span class="tag tag-success">已生效</span></td>
+                                <td>2024-12-02 09:00:00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 预警统计 -->
+                <div class="card">
+                    <div class="card-header">预警统计</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div class="stats-card">
+                            <div class="title">总预警数</div>
+                            <div class="value" id="detailTotalAlerts">456</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="title">ETHOCA预警</div>
+                            <div class="value" id="detailEthocaAlerts">234</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="title">RDR预警</div>
+                            <div class="value" id="detailRdrAlerts">222</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="title">总消费</div>
+                            <div class="value" id="detailTotalSpent">$4,560</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 编辑客户页 -->
+            <div id="edit-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">客户管理</a> > 编辑客户
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">编辑客户</h1>
+                    <div class="action-buttons">
+                        <button class="btn btn-default" onclick="showPricing(currentCustomerId)">设置价格</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <form id="customerEditForm">
+                        <div class="form-group">
+                            <label class="form-label">客户名称 <span class="required">*</span></label>
+                            <input type="text" class="form-input" name="customer_name" id="editCustomerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">联系邮箱 <span class="required">*</span></label>
+                            <input type="email" class="form-input" name="email" id="editEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">账号状态 <span class="required">*</span></label>
+                            <select class="form-select" name="status" id="editStatus" required>
+                                <option value="active">正常</option>
+                                <option value="disabled">已停用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">余额预警阈值</label>
+                            <input type="number" class="form-input" name="balance_threshold" id="editThreshold" step="0.01" min="0">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentCustomerId)">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 客户定价设置页 -->
+            <div id="pricing-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">客户管理</a> > 定价设置
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">客户定价设置</h1>
+                </div>
+
+                <div class="card">
+                    <form id="customerPricingForm">
+                        <div class="form-group">
+                            <label class="form-label">定价模式 <span class="required">*</span></label>
+                            <select class="form-select" name="pricing_mode" id="pricingModeEdit" required onchange="togglePricingModeEdit()">
+                                <option value="fixed">固定价格</option>
+                                <option value="tier">阶梯价格</option>
+                            </select>
+                        </div>
+
+                        <!-- 固定价格 -->
+                        <div id="fixedPricingEdit" class="pricing-section">
+                            <div class="form-group">
+                                <label class="form-label">ETHOCA单价 ($)</label>
+                                <input type="number" class="form-input" name="ethoca_price" step="0.01" min="0" placeholder="10.00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">RDR单价 ($)</label>
+                                <input type="number" class="form-input" name="rdr_price" step="0.01" min="0" placeholder="8.00">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CDRN单价 ($)</label>
+                                <input type="number" class="form-input" name="cdrn_price" step="0.01" min="0" placeholder="9.00">
+                            </div>
+                        </div>
+
+                        <!-- 阶梯价格 -->
+                        <div id="tierPricingEdit" class="pricing-section" style="display: none;">
+                            <div class="pricing-tiers" id="tierPricingEditContainer">
+                                <!-- 首条阶梯 -->
+                                <div class="tier-item first-tier" data-tier-index="0">
+                                    <div class="tier-range">
+                                        <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="tier_start[]" disabled>
+                                        <span>-</span>
+                                        <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="tier_end[]" onchange="updateTierRanges('tierPricingEditContainer')">
+                                    </div>
+                                    <div class="tier-prices">
+                                        <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
+                                        <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
+                                        <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                                    </div>
+                                    <div class="tier-actions">
+                                        <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                    </div>
+                                </div>
+                                <!-- 最后阶梯 -->
+                                <div class="tier-item last-tier" data-tier-index="1">
+                                    <div class="tier-range">
+                                        <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="tier_start[]" disabled>
+                                        <span class="tier-label">及以上</span>
+                                    </div>
+                                    <div class="tier-prices">
+                                        <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
+                                        <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
+                                        <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                                    </div>
+                                    <div class="tier-actions">
+                                        <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingEditContainer')">添加阶梯</button>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentCustomerId)">取消</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 客户余额管理页 -->
+            <div id="balance-page" class="page-section">
+                <div class="breadcrumb">
+                    <a onclick="showPage('list-page')">客户管理</a> > 余额管理
+                </div>
+                <div class="page-header">
+                    <h1 class="page-title">客户余额管理</h1>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">当前余额</div>
+                    <div style="font-size: 24px; font-weight: 600; margin: 20px 0;" id="currentBalanceDisplay">$2,340.00</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">调整余额</div>
+                    <form id="balanceAdjustForm">
+                        <div class="form-group">
+                            <label class="form-label">调整类型 <span class="required">*</span></label>
+                            <select class="form-select" name="adjust_type" required>
+                                <option value="increase">增加</option>
+                                <option value="decrease">减少</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">调整金额 <span class="required">*</span></label>
+                            <input type="number" class="form-input" name="amount" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-textarea" name="remark" placeholder="请输入调整原因"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">确认调整</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">余额预警阈值设置</div>
+                    <form id="thresholdForm">
+                        <div class="form-group">
+                            <label class="form-label">余额预警阈值</label>
+                            <input type="number" class="form-input" name="balance_threshold" id="thresholdInput" step="0.01" min="0" value="1000">
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                                当客户余额低于此阈值时，系统将发送飞书通知
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">保存</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">余额变动记录</div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>变动时间</th>
+                                <th>变动类型</th>
+                                <th>变动金额</th>
+                                <th>变动后余额</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody id="balanceHistory">
+                            <tr>
+                                <td>2025-01-15 10:30:00</td>
+                                <td>预警消费</td>
+                                <td style="color: var(--danger-color);">-$10.00</td>
+                                <td>$2,340.00</td>
+                                <td>ETHOCA预警扣费</td>
+                            </tr>
+                            <tr>
+                                <td>2025-01-14 15:20:00</td>
+                                <td>在线充值</td>
+                                <td style="color: var(--success-color);">+$500.00</td>
+                                <td>$2,350.00</td>
+                                <td>信用卡支付</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCustomerId = '';
+
+        // 页面切换函数
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 显示客户详情
+        function showDetail(customerId) {
+            currentCustomerId = customerId;
+            // 这里应该从API获取客户详情数据
+            // 模拟数据
+            document.getElementById('detailCustomerId').textContent = customerId;
+            document.getElementById('detailCustomerName').textContent = 'Customer A';
+            document.getElementById('detailEmail').textContent = 'customerA@example.com';
+            document.getElementById('detailStatus').innerHTML = '<span class="tag tag-success">正常</span>';
+            document.getElementById('detailBalance').textContent = '$2,340.00';
+            document.getElementById('detailThreshold').textContent = '$1,000.00';
+            document.getElementById('detailCreatedAt').textContent = '2024-12-01 10:00:00';
+            
+            showPage('detail-page');
+        }
+
+        // 显示编辑页面
+        function showEdit(customerId) {
+            currentCustomerId = customerId;
+            // 这里应该从API获取客户数据
+            document.getElementById('editCustomerName').value = 'Customer A';
+            document.getElementById('editEmail').value = 'customerA@example.com';
+            document.getElementById('editStatus').value = 'active';
+            document.getElementById('editThreshold').value = '1000';
+            
+            showPage('edit-page');
+        }
+
+        // 显示定价设置页面
+        function showPricing(customerId) {
+            currentCustomerId = customerId;
+            showPage('pricing-page');
+        }
+
+        // 显示余额管理页面
+        function showBalance(customerId) {
+            currentCustomerId = customerId;
+            showPage('balance-page');
+        }
+
+        // 切换定价模式（新增）
+        function togglePricingMode() {
+            const mode = document.getElementById('pricingMode').value;
+            const fixedPricing = document.getElementById('fixedPricing');
+            const tierPricing = document.getElementById('tierPricing');
+            if (mode === 'fixed') {
+                fixedPricing.style.display = 'block';
+                tierPricing.style.display = 'none';
+            } else {
+                fixedPricing.style.display = 'none';
+                tierPricing.style.display = 'block';
+                // 初始化阶梯范围
+                updateTierRanges('tierPricingContainer');
+            }
+        }
+
+        // 切换定价模式（编辑）
+        function togglePricingModeEdit() {
+            const mode = document.getElementById('pricingModeEdit').value;
+            const fixedPricing = document.getElementById('fixedPricingEdit');
+            const tierPricing = document.getElementById('tierPricingEdit');
+            if (mode === 'fixed') {
+                fixedPricing.style.display = 'block';
+                tierPricing.style.display = 'none';
+            } else {
+                fixedPricing.style.display = 'none';
+                tierPricing.style.display = 'block';
+                // 初始化阶梯范围
+                updateTierRanges('tierPricingEditContainer');
+            }
+        }
+
+        // 更新阶梯范围（当修改右值时自动更新后续阶梯的左值）
+        function updateTierRanges(containerId) {
+            const container = document.getElementById(containerId);
+            const tierItems = Array.from(container.querySelectorAll('.tier-item:not(.last-tier)'));
+            
+            tierItems.forEach((item, index) => {
+                const endInput = item.querySelector('.tier-end');
+                const endValue = parseInt(endInput.value) || 0;
+                
+                // 验证右值必须大于左值
+                const startInput = item.querySelector('.tier-start');
+                const startValue = parseInt(startInput.value) || 0;
+                
+                if (endValue <= startValue) {
+                    alert('结束条数必须大于起始条数');
+                    endInput.value = startValue + 1;
+                    return;
+                }
+                
+                // 更新下一个阶梯的左值
+                if (index < tierItems.length - 1) {
+                    const nextItem = tierItems[index + 1];
+                    const nextStartInput = nextItem.querySelector('.tier-start');
+                    nextStartInput.value = endValue + 1;
+                    nextStartInput.setAttribute('min', endValue + 1);
+                    
+                    // 如果下一个阶梯不是最后阶梯，更新其右值的最小值
+                    const nextEndInput = nextItem.querySelector('.tier-end');
+                    if (nextEndInput) {
+                        nextEndInput.setAttribute('min', endValue + 2);
+                        if (parseInt(nextEndInput.value) <= endValue) {
+                            nextEndInput.value = endValue + 1;
+                        }
+                    }
+                } else {
+                    // 更新最后阶梯的左值
+                    const lastItem = container.querySelector('.last-tier');
+                    if (lastItem) {
+                        const lastStartInput = lastItem.querySelector('.tier-start');
+                        lastStartInput.value = endValue + 1;
+                    }
+                }
+            });
+        }
+
+        // 添加阶梯（在最后阶梯之前插入）
+        function addTier(containerId) {
+            const container = document.getElementById(containerId);
+            const tierItems = Array.from(container.querySelectorAll('.tier-item:not(.last-tier)'));
+            const lastTier = container.querySelector('.last-tier');
+            
+            if (!lastTier) {
+                alert('无法添加阶梯：未找到最后阶梯');
+                return;
+            }
+            
+            // 获取上一个阶梯的右值
+            const prevEndInput = tierItems[tierItems.length - 1].querySelector('.tier-end');
+            const prevEndValue = parseInt(prevEndInput.value) || 0;
+            const newStartValue = prevEndValue + 1;
+            const newEndValue = prevEndValue + 100; // 默认范围100
+            
+            const tierItem = document.createElement('div');
+            tierItem.className = 'tier-item';
+            tierItem.setAttribute('data-tier-index', tierItems.length);
+            
+            tierItem.innerHTML = `
+                <div class="tier-range">
+                    <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="${newStartValue}" value="${newStartValue}" name="tier_start[]" disabled>
+                    <span>-</span>
+                    <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="${newStartValue + 1}" value="${newEndValue}" name="tier_end[]" onchange="updateTierRanges('${containerId}')">
+                </div>
+                <div class="tier-prices">
+                    <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
+                    <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
+                    <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                </div>
+                <div class="tier-actions">
+                    <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;">删除</button>
+                </div>
+            `;
+            
+            // 在最后阶梯之前插入
+            lastTier.parentNode.insertBefore(tierItem, lastTier);
+            
+            // 更新最后阶梯的左值
+            const lastStartInput = lastTier.querySelector('.tier-start');
+            lastStartInput.value = newEndValue + 1;
+        }
+
+        // 删除阶梯（不能删除首条和最后阶梯）
+        function removeTier(button) {
+            const tierItem = button.closest('.tier-item');
+            
+            // 检查是否是首条或最后阶梯
+            if (tierItem.classList.contains('first-tier') || tierItem.classList.contains('last-tier')) {
+                alert('首条阶梯和最后阶梯不允许删除');
+                return;
+            }
+            
+            const container = tierItem.closest('.pricing-tiers');
+            const containerId = container.id;
+            
+            // 获取被删除阶梯的上一个阶梯
+            const prevTier = tierItem.previousElementSibling;
+            const nextTier = tierItem.nextElementSibling;
+            
+            // 删除当前阶梯
+            tierItem.remove();
+            
+            // 更新后续阶梯的左值
+            if (prevTier && nextTier) {
+                const prevEndInput = prevTier.querySelector('.tier-end');
+                if (prevEndInput) {
+                    const prevEndValue = parseInt(prevEndInput.value) || 0;
+                    const nextStartInput = nextTier.querySelector('.tier-start');
+                    if (nextStartInput) {
+                        nextStartInput.value = prevEndValue + 1;
+                    }
+                }
+            }
+            
+            // 更新所有后续阶梯的范围
+            updateTierRanges(containerId);
+            
+            // 重新编号
+            const remainingItems = container.querySelectorAll('.tier-item:not(.last-tier)');
+            remainingItems.forEach((item, index) => {
+                item.setAttribute('data-tier-index', index);
+            });
+        }
+
+        // 搜索客户
+        function searchCustomers() {
+            // 这里应该调用API搜索
+            alert('搜索功能需要连接后端API');
+        }
+
+        // 表单提交
+        document.getElementById('customerNewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('创建客户功能需要连接后端API');
+            showPage('list-page');
+        });
+
+        document.getElementById('customerEditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('更新客户功能需要连接后端API');
+            showDetail(currentCustomerId);
+        });
+
+        document.getElementById('customerPricingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('保存定价设置功能需要连接后端API');
+            showDetail(currentCustomerId);
+        });
+
+        document.getElementById('balanceAdjustForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('调整余额功能需要连接后端API');
+        });
+
+        document.getElementById('thresholdForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('保存阈值设置功能需要连接后端API');
+        });
+    </script>
+</body>
+</html>
