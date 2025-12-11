@@ -34,6 +34,18 @@
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border-lighter);
         }
+        .service-tier-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--bg-lighter);
+            border-radius: 8px;
+        }
+        .service-tier-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
         .pricing-tiers {
             margin-top: 15px;
         }
@@ -43,8 +55,9 @@
             margin-bottom: 15px;
             align-items: flex-end;
             padding: 15px;
-            background: var(--bg-lighter);
+            background: white;
             border-radius: 4px;
+            border: 1px solid var(--border-lighter);
         }
         .tier-item input {
             flex: 1;
@@ -69,13 +82,11 @@
             color: var(--text-secondary);
             white-space: nowrap;
         }
-        .tier-prices {
-            display: flex;
-            gap: 10px;
-            flex: 1;
+        .tier-price-input {
+            flex: 0 0 150px;
         }
-        .tier-prices input {
-            flex: 1;
+        .tier-price-input input {
+            width: 100%;
         }
         .tier-actions {
             flex: 0 0 auto;
@@ -171,7 +182,7 @@
                                     <div class="action-buttons">
                                         <a href="javascript:void(0)" onclick="showDetail('CUST001')" class="action-link">详情</a>
                                         <a href="javascript:void(0)" onclick="showEdit('CUST001')" class="action-link">编辑</a>
-                                        <a href="javascript:void(0)" onclick="showPricing('CUST001')" class="action-link">定价</a>
+                                        <a href="javascript:void(0)" onclick="showPricing('CUST001')" class="action-link" style="display: none;">定价</a>
                                     </div>
                                 </td>
                             </tr>
@@ -187,7 +198,7 @@
                                     <div class="action-buttons">
                                         <a href="javascript:void(0)" onclick="showDetail('CUST002')" class="action-link">详情</a>
                                         <a href="javascript:void(0)" onclick="showEdit('CUST002')" class="action-link">编辑</a>
-                                        <a href="javascript:void(0)" onclick="showPricing('CUST002')" class="action-link">定价</a>
+                                        <a href="javascript:void(0)" onclick="showPricing('CUST002')" class="action-link" style="display: none;">定价</a>
                                     </div>
                                 </td>
                             </tr>
@@ -272,40 +283,110 @@
 
                             <!-- 阶梯价格 -->
                             <div id="tierPricing" class="pricing-section" style="display: none;">
-                                <div class="pricing-tiers" id="tierPricingContainer">
-                                    <!-- 首条阶梯 -->
-                                    <div class="tier-item first-tier" data-tier-index="0">
-                                        <div class="tier-range">
-                                            <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="tier_start[]" disabled>
-                                            <span>-</span>
-                                            <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="tier_end[]" onchange="updateTierRanges('tierPricingContainer')">
+                                <!-- ETHOCA梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">ETHOCA 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingEthocaContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="ethoca_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="ethoca_tier_end[]" onchange="updateTierRanges('tierPricingEthocaContainer', 'ethoca')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="ethoca_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
                                         </div>
-                                        <div class="tier-prices">
-                                            <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
-                                            <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
-                                            <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
-                                        </div>
-                                        <div class="tier-actions">
-                                            <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="ethoca_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="ethoca_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
                                         </div>
                                     </div>
-                                    <!-- 最后阶梯 -->
-                                    <div class="tier-item last-tier" data-tier-index="1">
-                                        <div class="tier-range">
-                                            <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="tier_start[]" disabled>
-                                            <span class="tier-label">及以上</span>
-                                        </div>
-                                        <div class="tier-prices">
-                                            <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
-                                            <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
-                                            <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
-                                        </div>
-                                        <div class="tier-actions">
-                                            <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
-                                        </div>
-                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingEthocaContainer', 'ethoca')">添加ETHOCA阶梯</button>
                                 </div>
-                                <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingContainer')">添加阶梯</button>
+
+                                <!-- RDR梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">RDR 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingRdrContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="rdr_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="rdr_tier_end[]" onchange="updateTierRanges('tierPricingRdrContainer', 'rdr')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="rdr_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="rdr_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="rdr_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingRdrContainer', 'rdr')">添加RDR阶梯</button>
+                                </div>
+
+                                <!-- CDRN梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">CDRN 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingCdrnContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="cdrn_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="cdrn_tier_end[]" onchange="updateTierRanges('tierPricingCdrnContainer', 'cdrn')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="cdrn_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="cdrn_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="cdrn_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingCdrnContainer', 'cdrn')">添加CDRN阶梯</button>
+                                </div>
                             </div>
                         </div>
 
@@ -326,7 +407,7 @@
                     <h1 class="page-title">客户详情</h1>
                     <div class="action-buttons">
                         <button class="btn btn-primary" onclick="showEdit(currentCustomerId)">编辑</button>
-                        <button class="btn btn-default" onclick="showPricing(currentCustomerId)">设置价格</button>
+                        <button class="btn btn-default" onclick="showPricing(currentCustomerId)" style="display: none;">设置价格</button>
                         <button class="btn btn-default" onclick="showBalance(currentCustomerId)">余额管理</button>
                     </div>
                 </div>
@@ -422,32 +503,170 @@
                 </div>
                 <div class="page-header">
                     <h1 class="page-title">编辑客户</h1>
-                    <div class="action-buttons">
-                        <button class="btn btn-default" onclick="showPricing(currentCustomerId)">设置价格</button>
-                    </div>
                 </div>
 
                 <div class="card">
                     <form id="customerEditForm">
-                        <div class="form-group">
-                            <label class="form-label">客户名称 <span class="required">*</span></label>
-                            <input type="text" class="form-input" name="customer_name" id="editCustomerName" required>
+                        <!-- 基本信息 -->
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-group">
+                                <label class="form-label">客户名称 <span class="required">*</span></label>
+                                <input type="text" class="form-input" name="customer_name" id="editCustomerName" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">联系邮箱 <span class="required">*</span></label>
+                                <input type="email" class="form-input" name="email" id="editEmail" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">账号状态 <span class="required">*</span></label>
+                                <select class="form-select" name="status" id="editStatus" required>
+                                    <option value="active">正常</option>
+                                    <option value="disabled">已停用</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">余额预警阈值</label>
+                                <input type="number" class="form-input" name="balance_threshold" id="editThreshold" step="0.01" min="0">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">联系邮箱 <span class="required">*</span></label>
-                            <input type="email" class="form-input" name="email" id="editEmail" required>
+
+                        <!-- 定价设置 -->
+                        <div class="form-section">
+                            <div class="form-section-title">定价设置</div>
+                            <div class="form-group">
+                                <label class="form-label">定价模式 <span class="required">*</span></label>
+                                <select class="form-select" name="pricing_mode" id="pricingModeEdit" required onchange="togglePricingModeEdit()">
+                                    <option value="fixed">固定价格</option>
+                                    <option value="tier">阶梯价格</option>
+                                </select>
+                            </div>
+
+                            <!-- 固定价格 -->
+                            <div id="fixedPricingEdit" class="pricing-section">
+                                <div class="form-group">
+                                    <label class="form-label">ETHOCA单价 ($)</label>
+                                    <input type="number" class="form-input" name="ethoca_price" id="editEthocaPrice" step="0.01" min="0" placeholder="10.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">RDR单价 ($)</label>
+                                    <input type="number" class="form-input" name="rdr_price" id="editRdrPrice" step="0.01" min="0" placeholder="8.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">CDRN单价 ($)</label>
+                                    <input type="number" class="form-input" name="cdrn_price" id="editCdrnPrice" step="0.01" min="0" placeholder="9.00">
+                                </div>
+                            </div>
+
+                            <!-- 阶梯价格 -->
+                            <div id="tierPricingEdit" class="pricing-section" style="display: none;">
+                                <!-- ETHOCA梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">ETHOCA 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingEditEthocaContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="ethoca_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="ethoca_tier_end[]" onchange="updateTierRanges('tierPricingEditEthocaContainer', 'ethoca')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="ethoca_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="ethoca_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="ethoca_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingEditEthocaContainer', 'ethoca')">添加ETHOCA阶梯</button>
+                                </div>
+
+                                <!-- RDR梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">RDR 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingEditRdrContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="rdr_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="rdr_tier_end[]" onchange="updateTierRanges('tierPricingEditRdrContainer', 'rdr')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="rdr_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="rdr_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="rdr_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingEditRdrContainer', 'rdr')">添加RDR阶梯</button>
+                                </div>
+
+                                <!-- CDRN梯度设置 -->
+                                <div class="service-tier-section">
+                                    <div class="service-tier-title">CDRN 梯度价格</div>
+                                    <div class="pricing-tiers" id="tierPricingEditCdrnContainer">
+                                        <!-- 首条阶梯 -->
+                                        <div class="tier-item first-tier" data-tier-index="0">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="0" name="cdrn_tier_start[]" disabled>
+                                                <span>-</span>
+                                                <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="1" value="100" name="cdrn_tier_end[]" onchange="updateTierRanges('tierPricingEditCdrnContainer', 'cdrn')">
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="cdrn_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                        <!-- 最后阶梯 -->
+                                        <div class="tier-item last-tier" data-tier-index="1">
+                                            <div class="tier-range">
+                                                <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="0" value="101" name="cdrn_tier_start[]" disabled>
+                                                <span class="tier-label">及以上</span>
+                                            </div>
+                                            <div class="tier-price-input">
+                                                <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="cdrn_tier_price[]">
+                                            </div>
+                                            <div class="tier-actions">
+                                                <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;" disabled>删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-default add-tier-btn" onclick="addTier('tierPricingEditCdrnContainer', 'cdrn')">添加CDRN阶梯</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">账号状态 <span class="required">*</span></label>
-                            <select class="form-select" name="status" id="editStatus" required>
-                                <option value="active">正常</option>
-                                <option value="disabled">已停用</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">余额预警阈值</label>
-                            <input type="number" class="form-input" name="balance_threshold" id="editThreshold" step="0.01" min="0">
-                        </div>
+
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">保存</button>
                             <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentCustomerId)">取消</button>
@@ -661,6 +880,14 @@
             document.getElementById('editStatus').value = 'active';
             document.getElementById('editThreshold').value = '1000';
             
+            // 初始化定价设置（这里应该从API获取定价数据）
+            // 假设是固定价格模式
+            document.getElementById('pricingModeEdit').value = 'fixed';
+            document.getElementById('editEthocaPrice').value = '10.00';
+            document.getElementById('editRdrPrice').value = '8.00';
+            document.getElementById('editCdrnPrice').value = '9.00';
+            togglePricingModeEdit();
+            
             showPage('edit-page');
         }
 
@@ -687,8 +914,10 @@
             } else {
                 fixedPricing.style.display = 'none';
                 tierPricing.style.display = 'block';
-                // 初始化阶梯范围
-                updateTierRanges('tierPricingContainer');
+                // 初始化所有服务类型的阶梯范围
+                updateTierRanges('tierPricingEthocaContainer', 'ethoca');
+                updateTierRanges('tierPricingRdrContainer', 'rdr');
+                updateTierRanges('tierPricingCdrnContainer', 'cdrn');
             }
         }
 
@@ -703,13 +932,15 @@
             } else {
                 fixedPricing.style.display = 'none';
                 tierPricing.style.display = 'block';
-                // 初始化阶梯范围
-                updateTierRanges('tierPricingEditContainer');
+                // 初始化所有服务类型的阶梯范围
+                updateTierRanges('tierPricingEditEthocaContainer', 'ethoca');
+                updateTierRanges('tierPricingEditRdrContainer', 'rdr');
+                updateTierRanges('tierPricingEditCdrnContainer', 'cdrn');
             }
         }
 
         // 更新阶梯范围（当修改右值时自动更新后续阶梯的左值）
-        function updateTierRanges(containerId) {
+        function updateTierRanges(containerId, serviceType) {
             const container = document.getElementById(containerId);
             const tierItems = Array.from(container.querySelectorAll('.tier-item:not(.last-tier)'));
             
@@ -754,7 +985,7 @@
         }
 
         // 添加阶梯（在最后阶梯之前插入）
-        function addTier(containerId) {
+        function addTier(containerId, serviceType) {
             const container = document.getElementById(containerId);
             const tierItems = Array.from(container.querySelectorAll('.tier-item:not(.last-tier)'));
             const lastTier = container.querySelector('.last-tier');
@@ -770,20 +1001,23 @@
             const newStartValue = prevEndValue + 1;
             const newEndValue = prevEndValue + 100; // 默认范围100
             
+            // 根据服务类型设置name属性
+            const startName = `${serviceType}_tier_start[]`;
+            const endName = `${serviceType}_tier_end[]`;
+            const priceName = `${serviceType}_tier_price[]`;
+            
             const tierItem = document.createElement('div');
             tierItem.className = 'tier-item';
             tierItem.setAttribute('data-tier-index', tierItems.length);
             
             tierItem.innerHTML = `
                 <div class="tier-range">
-                    <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="${newStartValue}" value="${newStartValue}" name="tier_start[]" disabled>
+                    <input type="number" class="form-input tier-start" placeholder="起始条数" step="1" min="${newStartValue}" value="${newStartValue}" name="${startName}" disabled>
                     <span>-</span>
-                    <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="${newStartValue + 1}" value="${newEndValue}" name="tier_end[]" onchange="updateTierRanges('${containerId}')">
+                    <input type="number" class="form-input tier-end" placeholder="结束条数" step="1" min="${newStartValue + 1}" value="${newEndValue}" name="${endName}" onchange="updateTierRanges('${containerId}', '${serviceType}')">
                 </div>
-                <div class="tier-prices">
-                    <input type="number" class="form-input" placeholder="ETHOCA价格" step="0.01" min="0" name="tier_ethoca[]">
-                    <input type="number" class="form-input" placeholder="RDR价格" step="0.01" min="0" name="tier_rdr[]">
-                    <input type="number" class="form-input" placeholder="CDRN价格" step="0.01" min="0" name="tier_cdrn[]">
+                <div class="tier-price-input">
+                    <input type="number" class="form-input" placeholder="价格 ($)" step="0.01" min="0" name="${priceName}">
                 </div>
                 <div class="tier-actions">
                     <button type="button" class="btn btn-default" onclick="removeTier(this)" style="min-width: auto; padding: 8px 12px;">删除</button>
@@ -811,6 +1045,16 @@
             const container = tierItem.closest('.pricing-tiers');
             const containerId = container.id;
             
+            // 从容器ID中提取服务类型
+            let serviceType = '';
+            if (containerId.includes('Ethoca')) {
+                serviceType = 'ethoca';
+            } else if (containerId.includes('Rdr')) {
+                serviceType = 'rdr';
+            } else if (containerId.includes('Cdrn')) {
+                serviceType = 'cdrn';
+            }
+            
             // 获取被删除阶梯的上一个阶梯
             const prevTier = tierItem.previousElementSibling;
             const nextTier = tierItem.nextElementSibling;
@@ -831,7 +1075,9 @@
             }
             
             // 更新所有后续阶梯的范围
-            updateTierRanges(containerId);
+            if (serviceType) {
+                updateTierRanges(containerId, serviceType);
+            }
             
             // 重新编号
             const remainingItems = container.querySelectorAll('.tier-item:not(.last-tier)');
@@ -855,6 +1101,52 @@
 
         document.getElementById('customerEditForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            // 这里应该收集表单数据，包括定价设置
+            const formData = new FormData(e.target);
+            const pricingMode = formData.get('pricing_mode');
+            const data = {
+                customer_name: formData.get('customer_name'),
+                email: formData.get('email'),
+                status: formData.get('status'),
+                balance_threshold: formData.get('balance_threshold'),
+                pricing_mode: pricingMode
+            };
+            
+            if (pricingMode === 'fixed') {
+                data.ethoca_price = formData.get('ethoca_price');
+                data.rdr_price = formData.get('rdr_price');
+                data.cdrn_price = formData.get('cdrn_price');
+            } else {
+                // 收集各服务类型的独立梯度价格数据
+                const ethocaStarts = formData.getAll('ethoca_tier_start[]');
+                const ethocaEnds = formData.getAll('ethoca_tier_end[]');
+                const ethocaPrices = formData.getAll('ethoca_tier_price[]');
+                data.ethoca_tiers = ethocaStarts.map((start, index) => ({
+                    start: parseInt(start),
+                    end: ethocaEnds[index] ? parseInt(ethocaEnds[index]) : null,
+                    price: ethocaPrices[index] ? parseFloat(ethocaPrices[index]) : null
+                }));
+                
+                const rdrStarts = formData.getAll('rdr_tier_start[]');
+                const rdrEnds = formData.getAll('rdr_tier_end[]');
+                const rdrPrices = formData.getAll('rdr_tier_price[]');
+                data.rdr_tiers = rdrStarts.map((start, index) => ({
+                    start: parseInt(start),
+                    end: rdrEnds[index] ? parseInt(rdrEnds[index]) : null,
+                    price: rdrPrices[index] ? parseFloat(rdrPrices[index]) : null
+                }));
+                
+                const cdrnStarts = formData.getAll('cdrn_tier_start[]');
+                const cdrnEnds = formData.getAll('cdrn_tier_end[]');
+                const cdrnPrices = formData.getAll('cdrn_tier_price[]');
+                data.cdrn_tiers = cdrnStarts.map((start, index) => ({
+                    start: parseInt(start),
+                    end: cdrnEnds[index] ? parseInt(cdrnEnds[index]) : null,
+                    price: cdrnPrices[index] ? parseFloat(cdrnPrices[index]) : null
+                }));
+            }
+            
+            console.log('提交数据:', data);
             alert('更新客户功能需要连接后端API');
             showDetail(currentCustomerId);
         });
