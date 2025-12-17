@@ -1,5 +1,44 @@
 # 修改日志
 
+## 2025-01-XX - 在所有预警邮件模板中增加争议金额字段
+
+### 修改内容
+- 更新了所有3个预警邮件模板文件：
+  - **ethoca_alert.html**: 在Alert Details部分增加了Dispute Amount（争议金额）字段
+  - **rdr_alert.html**: 在Alert Details部分增加了Dispute Amount（争议金额）字段
+  - **cdrn_alert.html**: 在Alert Details部分增加了Dispute Amount（争议金额）字段
+- Dispute Amount字段使用加粗样式显示，使用占位符（[Dispute Amount]）便于后续替换
+
+## 2025-01-XX - 更新RDR预警邮件模板
+
+### 修改内容
+- 更新了**rdr_alert.html**文件：
+  - 在Alert Details部分增加了CAID和BIN两个参数
+  - CAID和BIN字段同样使用加粗样式显示
+  - 使用占位符（[CAID]、[BIN]）便于后续替换
+
+## 2025-01-XX - 创建拒付预警邮件模板
+
+### 修改内容
+- 创建了email文件夹，用于存放邮件模板文件
+- 创建了3个拒付预警通知邮件模板：
+  - **ethoca_alert.html**: ETHOCA预警通知模板
+    - 包含Descriptor和拒付预警ID信息（加粗显示）
+    - 询问客户是否需要退款操作
+    - 提供系统链接用于提交退款信息
+  - **rdr_alert.html**: RDR预警通知模板
+    - 包含Descriptor、拒付预警ID、CAID、BIN信息（加粗显示）
+    - 仅用于通知客户，无需操作
+  - **cdrn_alert.html**: CDRN预警通知模板
+    - 包含Descriptor和拒付预警ID信息（加粗显示）
+    - 仅用于通知客户，无需操作
+- 所有邮件模板特点：
+  - 正式的邮件格式（包含header、body、footer）
+  - 全英文内容
+  - 关键内容（Descriptor、拒付预警ID、系统链接等）加粗显示
+  - 响应式设计，适配邮件客户端
+  - 使用占位符（[Descriptor]、[Chargeback Alert ID]、[System Link]、[CAID]、[BIN]）便于后续替换
+
 ## 2025-01-XX - 文档内容整理
 
 ### 修改内容
