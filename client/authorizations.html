@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorizations - Chargeback Alert System</title>
-    <link rel="stylesheet" href="common.css">
+    <title>Authorizations - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../ui-components/css/base.css">
+    <link rel="stylesheet" href="../ui-components/css/components.css">
+    
     <style>
         .page-section {
             display: none;
@@ -14,12 +22,15 @@
         }
         .breadcrumb {
             margin-bottom: 15px;
-            color: var(--text-secondary);
+            color: #6b7280;
         }
         .breadcrumb a {
-            color: var(--primary-color);
+            color: #f97316;
             text-decoration: none;
             cursor: pointer;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         .form-section {
             margin-bottom: 24px;
@@ -29,7 +40,7 @@
             font-weight: 600;
             margin-bottom: 16px;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #d1d5db;
         }
         .checkbox-group {
             display: flex;
@@ -44,56 +55,145 @@
         .conditional-fields {
             margin-top: 16px;
             padding-left: 24px;
-            border-left: 2px solid var(--primary-color);
+            border-left: 2px solid #f97316;
         }
         .status-badge {
             padding: 4px 12px;
-            border-radius: 2px;
+            border-radius: 4px;
             font-size: 12px;
         }
         .status-processing {
-            background: #fffbe6;
-            color: var(--warning-color);
-            border: 1px solid #ffe58f;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
         }
         .status-active {
-            background: #f6ffed;
-            color: var(--success-color);
-            border: 1px solid #b7eb8f;
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
         }
         .status-failed {
-            background: #fff1f0;
-            color: var(--danger-color);
-            border: 1px solid #ffccc7;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
         }
         .status-disabled {
-            background: #f4f4f5;
-            color: var(--text-secondary);
-            border: 1px solid #d3d4d6;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #9ca3af;
+        }
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+        .table-container .table {
+            min-width: 100%;
+            font-size: 13px;
+        }
+        .table thead th {
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 16px 20px;
+            text-transform: none;
+            font-size: 13px;
+        }
+        .table tbody td {
+            font-weight: 400;
+            padding: 16px 20px;
+            font-size: 13px;
+        }
+        .table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        .action-btn-primary {
+            background-color: #f97316;
+            color: white;
+        }
+        .action-btn-primary:hover {
+            background-color: #ea580c;
+        }
+        .action-btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+        .action-btn-secondary:hover {
+            background-color: #4b5563;
+        }
+        .action-btn-danger {
+            background-color: #dc2626;
+            color: white;
+        }
+        .action-btn-danger:hover {
+            background-color: #b91c1c;
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="logo">Chargeback Alert System</div>
-        <nav>
-            <ul class="nav-menu">
-                <li><a href="authorizations.html" class="active">Authorizations</a></li>
-                <li><a href="alerts.html">Alerts</a></li>
-                <li><a href="wallet.html">Wallet</a></li>
-            </ul>
-        </nav>
-        <div class="user-info">
-            <span>Customer A</span>
-            <a href="login.html" class="action-link">Logout</a>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                </div>
+                <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                    Chargewipe
+                </span>
+            </div>
+            
+            <!-- 导航菜单 -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="authorizations.html" class="text-sm font-medium text-orange-600 border-b-2 border-orange-600 pb-1">Authorizations</a>
+                <a href="alerts.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Alerts</a>
+                <a href="wallet.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Wallet</a>
+                <a href="charges.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Charges</a>
+            </nav>
+            
+            <!-- 用户信息 -->
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">C</span>
+                </div>
+                <span class="hidden md:block text-sm font-medium text-gray-700">Customer A</span>
+                <a href="login.html" class="text-sm text-gray-500 hover:text-gray-700">Logout</a>
+            </div>
         </div>
-    </div>
-    <div class="main-content">
+    </header>
+    
+    <!-- 主要内容区域 -->
+    <main class="min-h-screen">
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="main-content">
         <!-- 授权列表页 -->
         <div id="list-page" class="page-section active">
-            <div class="page-header">
-                <h1 class="page-title">Authorizations</h1>
-                <a href="javascript:void(0)" onclick="showPage('new-page')" class="btn btn-primary">New Authorization</a>
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Authorizations</h1>
+                <a href="javascript:void(0)" onclick="showPage('new-page')" class="btn btn-primary">
+                    <i class="fas fa-plus mr-2"></i>New Authorization
+                </a>
             </div>
 
             <!-- 搜索栏 -->
@@ -125,72 +225,77 @@
                             <option value="disabled">Disabled</option>
                         </select>
                     </div>
-                    <div class="search-item">
-                        <button type="button" class="btn btn-primary" onclick="searchAuthorizations()">Search</button>
-                        <button type="reset" class="btn btn-default" style="margin-left: 8px;">Reset</button>
+                    <div class="search-item search-buttons">
+                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-primary" onclick="searchAuthorizations()">Search</button>
+                            <button type="reset" class="btn btn-default" onclick="document.querySelector('.search-form').reset();">Reset</button>
+                        </div>
                     </div>
                 </form>
             </div>
 
             <!-- 授权列表 -->
             <div class="card">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Descriptor</th>
-                            <th>Authorization Mode</th>
-                            <th>Provider</th>
-                            <th>Notification Email</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="authorizationTableBody">
-                        <tr>
-                            <td>MYSHOP*STORE</td>
-                            <td>ETHOCA, RDR</td>
-                            <td>Provider A</td>
-                            <td>alerts@example.com</td>
-                            <td><span class="status-badge status-active">Active</span></td>
-                            <td>2024-12-02 09:00:00</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('AUTH001')" class="action-link">View</a>
-                                    <a href="javascript:void(0)" onclick="showEditEmail('AUTH001')" class="action-link">Edit Email</a>
-                                    <a href="javascript:void(0)" onclick="disableAuth('AUTH001')" class="action-link" style="color: var(--danger-color);">Disable</a>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>STORE*SHOP</td>
-                            <td>ETHOCA</td>
-                            <td>Provider B</td>
-                            <td>notify@example.com</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                            <td>2024-12-10 14:30:00</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('AUTH002')" class="action-link">View</a>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>SHOP*MYSTORE</td>
-                            <td>RDR</td>
-                            <td>Provider A</td>
-                            <td>alerts@example.com</td>
-                            <td><span class="status-badge status-failed">Failed</span></td>
-                            <td>2024-12-08 11:20:00</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('AUTH003')" class="action-link">View</a>
-                                    <a href="javascript:void(0)" onclick="showPage('new-page')" class="action-link">Retry</a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Descriptor</th>
+                                <th>Authorization Mode</th>
+                                <th>Provider</th>
+                                <th>Notification Email</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="authorizationTableBody">
+                            <tr>
+                                <td>MYSHOP*STORE</td>
+                                <td>ETHOCA, RDR</td>
+                                <td>Provider A</td>
+                                <td>alerts@example.com</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>2024-12-02 09:00:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('AUTH001')" class="action-btn action-btn-primary">View</a>
+                                        <a href="javascript:void(0)" onclick="showEditEmail('AUTH001')" class="action-btn action-btn-secondary">Edit Email</a>
+                                        <a href="javascript:void(0)" onclick="disableAuth('AUTH001')" class="action-btn action-btn-danger">Disable</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>STORE*SHOP</td>
+                                <td>ETHOCA</td>
+                                <td>Provider B</td>
+                                <td>notify@example.com</td>
+                                <td><span class="status-badge status-processing">Processing</span></td>
+                                <td>2024-12-10 14:30:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('AUTH002')" class="action-btn action-btn-primary">View</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SHOP*MYSTORE</td>
+                                <td>RDR</td>
+                                <td>Provider A</td>
+                                <td>alerts@example.com</td>
+                                <td><span class="status-badge status-failed">Failed</span></td>
+                                <td>2024-12-08 11:20:00</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="javascript:void(0)" onclick="showDetail('AUTH003')" class="action-btn action-btn-primary">View</a>
+                                        <a href="javascript:void(0)" onclick="showPage('new-page')" class="action-btn action-btn-secondary">Retry</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="pagination">
                     <button>Previous</button>
                     <button class="active">1</button>
@@ -202,11 +307,11 @@
 
         <!-- 新增授权页 -->
         <div id="new-page" class="page-section">
-            <div class="breadcrumb">
+            <div class="breadcrumb mb-4">
                 <a onclick="showPage('list-page')">Authorizations</a> > New Authorization
             </div>
-            <div class="page-header">
-                <h1 class="page-title">New Authorization</h1>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">New Authorization</h1>
             </div>
 
             <div class="card">
@@ -286,11 +391,11 @@
 
         <!-- 授权详情页 -->
         <div id="detail-page" class="page-section">
-            <div class="breadcrumb">
+            <div class="breadcrumb mb-4">
                 <a onclick="showPage('list-page')">Authorizations</a> > Authorization Details
             </div>
-            <div class="page-header">
-                <h1 class="page-title">Authorization Details</h1>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Authorization Details</h1>
                 <div class="action-buttons" id="detailActions">
                     <button class="btn btn-primary" onclick="showEditEmail(currentAuthId)" id="editEmailBtn">Edit Email</button>
                     <button class="btn btn-default" onclick="enableAuth(currentAuthId)" id="enableBtn" style="display: none;">Enable</button>
@@ -338,37 +443,39 @@
 
             <div class="card">
                 <div class="card-header">Status History</div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Status</th>
-                            <th>Time</th>
-                            <th>Note</th>
-                        </tr>
-                    </thead>
-                    <tbody id="statusHistory">
-                        <tr>
-                            <td><span class="status-badge status-active">Active</span></td>
-                            <td>2024-12-05 10:00:00</td>
-                            <td>Provider approved</td>
-                        </tr>
-                        <tr>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                            <td>2024-12-02 09:00:00</td>
-                            <td>Submitted to provider</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Time</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statusHistory">
+                            <tr>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>2024-12-05 10:00:00</td>
+                                <td>Provider approved</td>
+                            </tr>
+                            <tr>
+                                <td><span class="status-badge status-processing">Processing</span></td>
+                                <td>2024-12-02 09:00:00</td>
+                                <td>Submitted to provider</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- 编辑邮箱页 -->
         <div id="edit-email-page" class="page-section">
-            <div class="breadcrumb">
+            <div class="breadcrumb mb-4">
                 <a onclick="showPage('list-page')">Authorizations</a> > Edit Email
             </div>
-            <div class="page-header">
-                <h1 class="page-title">Edit Notification Email</h1>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Edit Notification Email</h1>
             </div>
 
             <div class="card">

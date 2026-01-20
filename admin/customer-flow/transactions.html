@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交易明细 - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../../ui-components/css/base.css">
+    <link rel="stylesheet" href="../../ui-components/css/sidebar.css">
+    <link rel="stylesheet" href="../../ui-components/css/components.css">
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+            <!-- 侧边栏头部 -->
+            <div class="flex items-center justify-center h-16 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                        Chargewipe
+                    </span>
+                </div>
+            </div>
+
+            <!-- 侧边栏菜单区 -->
+            <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+                <nav>
+                    <div class="px-4 py-4">
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="../dashboard.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>
+                                    数据看板
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../customers.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>
+                                    客户管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../providers.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-server w-5 h-5 mr-3 text-gray-400"></i>
+                                    服务商管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../alerts.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>
+                                    预警明细
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../work-orders.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    工单管理
+                                </a>
+                            </li>
+                            <li class="mt-4">
+                                <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">客户流水</div>
+                            </li>
+                            <li>
+                                <a href="charges.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-money-bill-wave w-5 h-5 mr-3 text-gray-400"></i>
+                                    扣费记录
+                                </a>
+                            </li>
+                            <li>
+                                <a href="recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>
+                                    在线充值
+                                </a>
+                            </li>
+                            <li>
+                                <a href="transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-exchange-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    线下转账
+                                </a>
+                            </li>
+                            <li>
+                                <a href="transactions.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100">
+                                    <i class="fas fa-list-alt w-5 h-5 mr-3 text-orange-600"></i>
+                                    交易明细
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 遮罩层 (移动端) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+        <!-- 主要内容区域 -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- 顶部栏 -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+                    <!-- 左侧 -->
+                    <div class="flex items-center">
+                        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                        
+                        <div class="ml-4 lg:ml-0">
+                            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                                <span class="text-gray-500">运营端</span>
+                                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                                <span class="text-gray-900 font-medium">交易明细</span>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧 -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                                <i class="fas fa-bell text-lg"></i>
+                                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">0</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">A</span>
+                            </div>
+                            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                            <a href="../login.html" class="text-sm text-gray-500 hover:text-gray-700">退出</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- 页面内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="content-area">
+                            <div class="mb-6">
+                                <h1 class="text-2xl font-bold text-gray-900">交易明细</h1>
+                            </div>
+
+                            <!-- 搜索栏 -->
+                            <div class="search-bar">
+                                <form class="search-form" onsubmit="return false;">
+                                    <div class="search-item">
+                                        <label class="form-label">交易时间</label>
+                                        <div style="display: flex; gap: 10px; align-items: center;">
+                                            <input type="date" class="form-input" id="searchStartDate" style="flex: 1; min-width: 0;">
+                                            <span style="color: #6b7280; white-space: nowrap; flex-shrink: 0;">至</span>
+                                            <input type="date" class="form-input" id="searchEndDate" style="flex: 1; min-width: 0;">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">商户ID</label>
+                                        <input type="text" class="form-input" id="searchMerchantId" placeholder="请输入商户ID">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">客户名称</label>
+                                        <input type="text" class="form-input" id="searchCustomerName" placeholder="请输入客户名称">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">交易类型</label>
+                                        <select class="form-select" id="searchTransactionType">
+                                            <option value="">全部</option>
+                                            <option value="Online Recharge">在线充值</option>
+                                            <option value="Offline Transfer">线下转账</option>
+                                            <option value="System Adjustment - Increase">系统调整-增加</option>
+                                            <option value="System Adjustment - Decrease">系统调整-减少</option>
+                                            <option value="Alert Fee">预警费用</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-item search-buttons">
+                                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="btn btn-primary" onclick="searchTransactions()">搜索</button>
+                                            <button type="reset" class="btn btn-default" onclick="resetSearch()">重置</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- 交易明细列表 -->
+                            <div class="card">
+                                <div class="list-actions">
+                                    <div class="list-actions-left"></div>
+                                    <div class="list-actions-right">
+                                        <button class="export-button" onclick="exportToExcel()">
+                                            <i class="fas fa-download"></i>导出Excel
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="table-container">
+                                    <table class="table" id="transactionsTable">
+                                        <thead>
+                                            <tr>
+                                                <th class="sortable">交易时间</th>
+                                                <th>交易类型</th>
+                                                <th>交易币种</th>
+                                                <th class="sortable">交易金额</th>
+                                                <th class="sortable">汇率</th>
+                                                <th>默认币种</th>
+                                                <th class="sortable">变动金额</th>
+                                                <th class="sortable">当前余额</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="transactionsTableBody">
+                                            <tr>
+                                                <td>2026-01-15 10:30:00</td>
+                                                <td>预警费用</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--danger-color);">-10.00</td>
+                                                <td>1.000000</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--danger-color);">-10.00</td>
+                                                <td>2340.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2026-01-14 15:20:00</td>
+                                                <td>在线充值</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--success-color);">+500.00</td>
+                                                <td>1.000000</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--success-color);">+500.00</td>
+                                                <td>2350.00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2026-01-13 09:00:00</td>
+                                                <td>线下转账</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--success-color);">+1000.00</td>
+                                                <td>1.000000</td>
+                                                <td>USD</td>
+                                                <td style="color: var(--success-color);">+1000.00</td>
+                                                <td>1850.00</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="pagination">
+                                    <div class="pagination-controls">
+                                        <button onclick="changePage(-1)" disabled>上一页</button>
+                                        <button class="active" onclick="changePage(1)">1</button>
+                                        <button onclick="changePage(2)">2</button>
+                                        <button onclick="changePage(1)">下一页</button>
+                                    </div>
+                                    <div class="pagination-info">
+                                        <span>共 <span id="totalCount">100</span> 条</span>
+                                    </div>
+                                    <div class="pagination-page-size">
+                                        <span>每页</span>
+                                        <select id="pageSize" onchange="changePageSize()">
+                                            <option value="10" selected>10</option>
+                                            <option value="20">20</option>
+                                            <option value="30">30</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span>条</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../../ui-components/js/sidebar.js"></script>
+    <script src="../../ui-components/js/common.js"></script>
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+
+        // 初始化表格排序
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableSort('transactionsTable');
+        });
+
+        // 搜索交易明细
+        function searchTransactions() {
+            const params = {
+                startDate: document.getElementById('searchStartDate').value,
+                endDate: document.getElementById('searchEndDate').value,
+                merchantId: document.getElementById('searchMerchantId').value.trim(),
+                customerName: document.getElementById('searchCustomerName').value.trim(),
+                transactionType: document.getElementById('searchTransactionType').value,
+                page: currentPage,
+                pageSize: pageSize
+            };
+            
+            showMessage('搜索功能需要后端API支持', 'info');
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchStartDate').value = '';
+            document.getElementById('searchEndDate').value = '';
+            document.getElementById('searchMerchantId').value = '';
+            document.getElementById('searchCustomerName').value = '';
+            document.getElementById('searchTransactionType').value = '';
+            currentPage = 1;
+            searchTransactions();
+        }
+
+        // 导出Excel
+        function exportToExcel() {
+            const params = {
+                startDate: document.getElementById('searchStartDate').value,
+                endDate: document.getElementById('searchEndDate').value,
+                merchantId: document.getElementById('searchMerchantId').value.trim(),
+                customerName: document.getElementById('searchCustomerName').value.trim(),
+                transactionType: document.getElementById('searchTransactionType').value
+            };
+            
+            const filename = `交易明细_${new Date().toISOString().split('T')[0]}.xlsx`;
+            exportToExcel(params, filename);
+        }
+
+        // 分页
+        function changePage(page) {
+            if (page === -1) {
+                currentPage = Math.max(1, currentPage - 1);
+            } else if (page === 'next') {
+                currentPage++;
+            } else {
+                currentPage = page;
+            }
+            searchTransactions();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            searchTransactions();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工单管理 - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../ui-components/css/base.css">
+    <link rel="stylesheet" href="../ui-components/css/sidebar.css">
+    <link rel="stylesheet" href="../ui-components/css/components.css">
+    
+    <style>
+        .status-pending-provider {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fbbf24;
+        }
+        .status-pending-feedback {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+        }
+        .status-pending-manual {
+            background: #fed7aa;
+            color: #9a3412;
+            border: 1px solid #fb923c;
+        }
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            color: #111827;
+        }
+        .history-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-time {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+        .history-content {
+            font-size: 0.875rem;
+            color: #111827;
+        }
+        .form-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .form-group.has-error .form-error {
+            display: block;
+        }
+        .form-group.has-error .form-input,
+        .form-group.has-error .form-select {
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+            <!-- 侧边栏头部 -->
+            <div class="flex items-center justify-center h-16 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                        Chargewipe
+                    </span>
+                </div>
+            </div>
+
+            <!-- 侧边栏菜单区 -->
+            <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+                <nav>
+                    <div class="px-4 py-4">
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="dashboard.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>
+                                    数据看板
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customers.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>
+                                    客户管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="providers.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-server w-5 h-5 mr-3 text-gray-400"></i>
+                                    服务商管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="alerts.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>
+                                    预警明细
+                                </a>
+                            </li>
+                            <li>
+                                <a href="work-orders.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100">
+                                    <i class="fas fa-file-alt w-5 h-5 mr-3 text-orange-600"></i>
+                                    工单管理
+                                </a>
+                            </li>
+                            <li class="mt-4">
+                                <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">客户流水</div>
+                            </li>
+                            <li>
+                                <a href="customer-flow/charges.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-money-bill-wave w-5 h-5 mr-3 text-gray-400"></i>
+                                    扣费记录
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>
+                                    在线充值
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-exchange-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    线下转账
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/transactions.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    交易明细
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 遮罩层 (移动端) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+        <!-- 主要内容区域 -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- 顶部栏 -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+                    <!-- 左侧 -->
+                    <div class="flex items-center">
+                        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                        
+                        <div class="ml-4 lg:ml-0">
+                            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                                <span class="text-gray-500">运营端</span>
+                                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                                <span class="text-gray-900 font-medium">工单管理</span>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧 -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                                <i class="fas fa-bell text-lg"></i>
+                                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">0</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">A</span>
+                            </div>
+                            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                            <a href="login.html" class="text-sm text-gray-500 hover:text-gray-700">退出</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- 页面内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="content-area">
+                            <div class="mb-6">
+                                <h1 class="text-2xl font-bold text-gray-900">工单管理</h1>
+                            </div>
+
+                            <!-- 搜索栏 -->
+                            <div class="search-bar">
+                                <form class="search-form" onsubmit="return false;">
+                                    <div class="search-item">
+                                        <label class="form-label">提交时间</label>
+                                        <div style="display: flex; gap: 10px; align-items: center;">
+                                            <input type="date" class="form-input" id="searchStartDate" style="flex: 1; min-width: 0;">
+                                            <span style="color: #6b7280; white-space: nowrap; flex-shrink: 0;">至</span>
+                                            <input type="date" class="form-input" id="searchEndDate" style="flex: 1; min-width: 0;">
+                                        </div>
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">工单ID</label>
+                                        <input type="text" class="form-input" id="searchOrderId" placeholder="请输入工单ID">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">商户ID</label>
+                                        <input type="text" class="form-input" id="searchMerchantId" placeholder="请输入商户ID">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">客户名称</label>
+                                        <input type="text" class="form-input" id="searchCustomerName" placeholder="请输入客户名称">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">工单类型</label>
+                                        <select class="form-select" id="searchOrderType">
+                                            <option value="">全部</option>
+                                            <option value="Add Descriptor">新增Descriptor</option>
+                                            <option value="Modify Descriptor Status">修改Descriptor状态</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">服务商名称</label>
+                                        <input type="text" class="form-input" id="searchProviderName" placeholder="请输入服务商名称">
+                                    </div>
+                                    <div class="search-item">
+                                        <label class="form-label">拒付预警类型</label>
+                                        <select class="form-select" id="searchAlertType">
+                                            <option value="">全部</option>
+                                            <option value="ETHOCA">ETHOCA</option>
+                                            <option value="RDR">RDR</option>
+                                            <option value="CDRN">CDRN</option>
+                                        </select>
+                                    </div>
+                                    <div class="search-item search-buttons">
+                                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="btn btn-primary" onclick="searchOrders()">搜索</button>
+                                            <button type="reset" class="btn btn-default" onclick="resetSearch()">重置</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- 工单列表 -->
+                            <div class="card">
+                                <div class="table-container">
+                                    <table class="table" id="ordersTable">
+                                        <thead>
+                                            <tr>
+                                                <th>工单ID</th>
+                                                <th class="sortable">提交时间</th>
+                                                <th>商户ID</th>
+                                                <th>客户名称</th>
+                                                <th>工单类型</th>
+                                                <th>拒付预警类型</th>
+                                                <th>Descriptor</th>
+                                                <th>服务商</th>
+                                                <th>状态</th>
+                                                <th>跟进人</th>
+                                                <th class="sortable">跟进时间</th>
+                                                <th>备注</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersTableBody">
+                                            <tr>
+                                                <td>N0000001</td>
+                                                <td>2026-01-15 10:30:00</td>
+                                                <td>MER001</td>
+                                                <td>客户A</td>
+                                                <td>新增Descriptor</td>
+                                                <td>ETHOCA</td>
+                                                <td>MYSHOP*STORE</td>
+                                                <td>-</td>
+                                                <td><span class="status-badge status-pending-provider">待选择服务商</span></td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <a href="javascript:void(0)" onclick="viewDetail('N0000001')" class="action-btn action-btn-primary">查看详情</a>
+                                                        <a href="javascript:void(0)" onclick="updateFollower('N0000001')" class="action-btn action-btn-secondary">更新跟进人</a>
+                                                        <a href="javascript:void(0)" onclick="selectProvider('N0000001')" class="action-btn action-btn-primary">选择服务商</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>C0000002</td>
+                                                <td>2026-01-14 14:20:00</td>
+                                                <td>MER002</td>
+                                                <td>客户B</td>
+                                                <td>修改Descriptor状态</td>
+                                                <td>RDR</td>
+                                                <td>STORE*SHOP</td>
+                                                <td>服务商A</td>
+                                                <td><span class="status-badge status-pending-feedback">待服务商反馈</span></td>
+                                                <td>张三(zhangsan@example.com)</td>
+                                                <td>2026-01-14 15:00:00</td>
+                                                <td>-</td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <a href="javascript:void(0)" onclick="viewDetail('C0000002')" class="action-btn action-btn-primary">查看详情</a>
+                                                        <a href="javascript:void(0)" onclick="updateFollower('C0000002')" class="action-btn action-btn-secondary">更新跟进人</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>N0000003</td>
+                                                <td>2026-01-13 09:15:00</td>
+                                                <td>MER001</td>
+                                                <td>客户A</td>
+                                                <td>新增Descriptor</td>
+                                                <td>ETHOCA</td>
+                                                <td>SHOP*MYSTORE</td>
+                                                <td>服务商B</td>
+                                                <td><span class="status-badge status-pending-manual">待人工手动处理</span></td>
+                                                <td>李四(lisi@example.com)</td>
+                                                <td>2026-01-13 10:00:00</td>
+                                                <td>服务商无API接口</td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <a href="javascript:void(0)" onclick="viewDetail('N0000003')" class="action-btn action-btn-primary">查看详情</a>
+                                                        <a href="javascript:void(0)" onclick="updateFollower('N0000003')" class="action-btn action-btn-secondary">更新跟进人</a>
+                                                        <a href="javascript:void(0)" onclick="recordResult('N0000003')" class="action-btn action-btn-primary">记录结果</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="pagination">
+                                    <div class="pagination-controls">
+                                        <button onclick="changePage(-1)" disabled>上一页</button>
+                                        <button class="active" onclick="changePage(1)">1</button>
+                                        <button onclick="changePage(2)">2</button>
+                                        <button onclick="changePage(1)">下一页</button>
+                                    </div>
+                                    <div class="pagination-info">
+                                        <span>共 <span id="totalCount">100</span> 条</span>
+                                    </div>
+                                    <div class="pagination-page-size">
+                                        <span>每页</span>
+                                        <select id="pageSize" onchange="changePageSize()">
+                                            <option value="10" selected>10</option>
+                                            <option value="20">20</option>
+                                            <option value="30">30</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span>条</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">工单详情</h2>
+                <button class="modal-close" onclick="closeModal('detailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-section">
+                    <div class="form-section-title">工单内容</div>
+                    <table class="table" style="max-width: 100%;">
+                        <tr>
+                            <td style="width: 150px; font-weight: 600;">工单ID</td>
+                            <td id="detailOrderId">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">提交时间</td>
+                            <td id="detailSubmitTime">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">商户ID</td>
+                            <td id="detailMerchantId">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">客户名称</td>
+                            <td id="detailCustomerName">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">工单类型</td>
+                            <td id="detailOrderType">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">拒付预警类型</td>
+                            <td id="detailAlertType">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">Descriptor</td>
+                            <td id="detailDescriptor">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">服务商</td>
+                            <td id="detailProvider">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">状态</td>
+                            <td id="detailStatus">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">跟进人</td>
+                            <td id="detailFollower">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">跟进时间</td>
+                            <td id="detailFollowTime">-</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 600;">备注</td>
+                            <td id="detailRemarks">-</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="form-section">
+                    <div class="form-section-title">处理历史</div>
+                    <div id="historyList">
+                        <!-- 处理历史记录将动态插入这里 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                <button class="btn btn-default" onclick="closeModal('detailModal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选择服务商弹窗 -->
+    <div id="selectProviderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">选择服务商</h2>
+                <button class="modal-close" onclick="closeModal('selectProviderModal')">&times;</button>
+            </div>
+            <form id="selectProviderForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label class="form-label">Descriptor</label>
+                    <input type="text" class="form-input" id="selectProviderDescriptor" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">拒付预警类型</label>
+                    <input type="text" class="form-input" id="selectProviderAlertType" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">服务商 <span class="required">*</span></label>
+                    <select class="form-select" id="selectProviderSelect" required>
+                        <option value="">请选择服务商</option>
+                        <option value="PROV001">服务商A(启用)</option>
+                        <option value="PROV002">服务商B(启用)</option>
+                        <option value="PROV003" disabled>服务商C(停用)</option>
+                    </select>
+                    <div class="form-error">请选择服务商</div>
+                </div>
+                <div class="form-group" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                    <button type="button" class="btn btn-default" style="margin-left: 8px;" onclick="closeModal('selectProviderModal')">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 记录结果弹窗 -->
+    <div id="recordResultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">记录结果</h2>
+                <button class="modal-close" onclick="closeModal('recordResultModal')">&times;</button>
+            </div>
+            <form id="recordResultForm" onsubmit="return false;">
+                <div class="form-group">
+                    <label class="form-label">工单类型</label>
+                    <input type="text" class="form-input" id="recordResultOrderType" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descriptor</label>
+                    <input type="text" class="form-input" id="recordResultDescriptor" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">服务商</label>
+                    <input type="text" class="form-input" id="recordResultProvider" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">结果 <span class="required">*</span></label>
+                    <select class="form-select" id="recordResultSelect" required>
+                        <option value="">请选择结果</option>
+                        <option value="success">成功</option>
+                        <option value="failed">失败</option>
+                    </select>
+                    <div class="form-error">请选择结果</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-input" id="recordResultRemarks" rows="3" placeholder="选填"></textarea>
+                </div>
+                <div class="form-group" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                    <button type="button" class="btn btn-default" style="margin-left: 8px;" onclick="closeModal('recordResultModal')">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="../ui-components/js/sidebar.js"></script>
+    <script src="../ui-components/js/common.js"></script>
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+        let currentOrderId = '';
+
+        // 初始化表格排序
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableSort('ordersTable');
+        });
+
+        // 搜索工单
+        function searchOrders() {
+            const params = {
+                startDate: document.getElementById('searchStartDate').value,
+                endDate: document.getElementById('searchEndDate').value,
+                orderId: document.getElementById('searchOrderId').value.trim(),
+                merchantId: document.getElementById('searchMerchantId').value.trim(),
+                customerName: document.getElementById('searchCustomerName').value.trim(),
+                orderType: document.getElementById('searchOrderType').value,
+                providerName: document.getElementById('searchProviderName').value.trim(),
+                alertType: document.getElementById('searchAlertType').value,
+                page: currentPage,
+                pageSize: pageSize
+            };
+            
+            showMessage('搜索功能需要后端API支持', 'info');
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchStartDate').value = '';
+            document.getElementById('searchEndDate').value = '';
+            document.getElementById('searchOrderId').value = '';
+            document.getElementById('searchMerchantId').value = '';
+            document.getElementById('searchCustomerName').value = '';
+            document.getElementById('searchOrderType').value = '';
+            document.getElementById('searchProviderName').value = '';
+            document.getElementById('searchAlertType').value = '';
+            currentPage = 1;
+            searchOrders();
+        }
+
+        // 查看详情
+        function viewDetail(orderId) {
+            currentOrderId = orderId;
+            // 模拟数据
+            document.getElementById('detailOrderId').textContent = orderId;
+            document.getElementById('detailSubmitTime').textContent = '2026-01-15 10:30:00';
+            document.getElementById('detailMerchantId').textContent = 'MER001';
+            document.getElementById('detailCustomerName').textContent = '客户A';
+            document.getElementById('detailOrderType').textContent = '新增Descriptor';
+            document.getElementById('detailAlertType').textContent = 'ETHOCA';
+            document.getElementById('detailDescriptor').textContent = 'MYSHOP*STORE';
+            document.getElementById('detailProvider').textContent = '-';
+            document.getElementById('detailStatus').innerHTML = '<span class="status-badge status-pending-provider">待选择服务商</span>';
+            document.getElementById('detailFollower').textContent = '-';
+            document.getElementById('detailFollowTime').textContent = '-';
+            document.getElementById('detailRemarks').textContent = '-';
+            
+            // 处理历史
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = `
+                <div class="history-item">
+                    <div class="history-time">2026-01-15 10:30:00</div>
+                    <div class="history-content">客户提交工单 - 客户A</div>
+                </div>
+            `;
+            
+            openModal('detailModal');
+        }
+
+        // 更新跟进人
+        function updateFollower(orderId) {
+            showConfirmModal(
+                '确认更新跟进人',
+                '确定要将此工单的跟进人更新为当前用户吗？',
+                function() {
+                    // 调用API更新跟进人
+                    showMessage('跟进人更新成功', 'success');
+                    searchOrders();
+                }
+            );
+        }
+
+        // 选择服务商
+        function selectProvider(orderId) {
+            currentOrderId = orderId;
+            // 模拟数据
+            document.getElementById('selectProviderDescriptor').value = 'MYSHOP*STORE';
+            document.getElementById('selectProviderAlertType').value = 'ETHOCA';
+            document.getElementById('selectProviderSelect').value = '';
+            openModal('selectProviderModal');
+        }
+
+        // 记录结果
+        function recordResult(orderId) {
+            currentOrderId = orderId;
+            // 模拟数据
+            document.getElementById('recordResultOrderType').value = '新增Descriptor';
+            document.getElementById('recordResultDescriptor').value = 'SHOP*MYSTORE';
+            document.getElementById('recordResultProvider').value = '服务商B';
+            document.getElementById('recordResultSelect').value = '';
+            document.getElementById('recordResultRemarks').value = '';
+            openModal('recordResultModal');
+        }
+
+        // 打开弹窗
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 选择服务商表单提交
+        document.getElementById('selectProviderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const providerId = document.getElementById('selectProviderSelect').value;
+            if (!providerId) {
+                document.querySelector('#selectProviderForm .form-group').classList.add('has-error');
+                return;
+            }
+            
+            // 调用API提交
+            showMessage('服务商选择成功', 'success');
+            closeModal('selectProviderModal');
+            searchOrders();
+        });
+
+        // 记录结果表单提交
+        document.getElementById('recordResultForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const result = document.getElementById('recordResultSelect').value;
+            if (!result) {
+                document.querySelector('#recordResultForm .form-group').classList.add('has-error');
+                return;
+            }
+            
+            const remarks = document.getElementById('recordResultRemarks').value;
+            // 调用API提交
+            showMessage('结果记录成功', 'success');
+            closeModal('recordResultModal');
+            searchOrders();
+        });
+
+        // 分页
+        function changePage(page) {
+            if (page === -1) {
+                currentPage = Math.max(1, currentPage - 1);
+            } else if (page === 'next') {
+                currentPage++;
+            } else {
+                currentPage = page;
+            }
+            searchOrders();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            searchOrders();
+        }
+    </script>
+</body>
+</html>

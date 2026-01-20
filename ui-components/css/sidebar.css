@@ -1,0 +1,27 @@
+/* 侧边栏样式 */
+#sidebar {
+  transition: transform 0.3s ease-in-out;
+}
+
+#sidebar-overlay {
+  transition: opacity 0.3s ease-linear;
+}
+
+/* 菜单分组标题 */
+.menu-section-title {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.menu-section-title:hover {
+  color: #f97316;
+}
+
+/* 菜单箭头旋转动画 */
+.menu-arrow {
+  transition: transform 0.2s ease;
+}
+
+.menu-arrow.rotated {
+  transform: rotate(-90deg);
+}

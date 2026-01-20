@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerts - Chargeback Alert System</title>
-    <link rel="stylesheet" href="common.css">
+    <title>Alerts - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../ui-components/css/base.css">
+    <link rel="stylesheet" href="../ui-components/css/components.css">
+    
     <style>
         .page-section {
             display: none;
@@ -14,12 +22,15 @@
         }
         .breadcrumb {
             margin-bottom: 15px;
-            color: var(--text-secondary);
+            color: #6b7280;
         }
         .breadcrumb a {
-            color: var(--primary-color);
+            color: #f97316;
             text-decoration: none;
             cursor: pointer;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
         .info-grid {
             display: grid;
@@ -29,12 +40,12 @@
         }
         .info-item {
             padding: 15px;
-            background: #fafafa;
-            border-radius: 2px;
+            background: #f9fafb;
+            border-radius: 4px;
         }
         .info-label {
             font-size: 12px;
-            color: var(--text-secondary);
+            color: #6b7280;
             margin-bottom: 5px;
         }
         .info-value {
@@ -43,26 +54,48 @@
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="logo">Chargeback Alert System</div>
-        <nav>
-            <ul class="nav-menu">
-                <li><a href="authorizations.html">Authorizations</a></li>
-                <li><a href="alerts.html" class="active">Alerts</a></li>
-                <li><a href="wallet.html">Wallet</a></li>
-            </ul>
-        </nav>
-        <div class="user-info">
-            <span>Customer A</span>
-            <a href="login.html" class="action-link">Logout</a>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                </div>
+                <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                    Chargewipe
+                </span>
+            </div>
+            
+            <!-- 导航菜单 -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="authorizations.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Authorizations</a>
+                <a href="alerts.html" class="text-sm font-medium text-orange-600 border-b-2 border-orange-600 pb-1">Alerts</a>
+                <a href="wallet.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Wallet</a>
+                <a href="charges.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Charges</a>
+            </nav>
+            
+            <!-- 用户信息 -->
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">C</span>
+                </div>
+                <span class="hidden md:block text-sm font-medium text-gray-700">Customer A</span>
+                <a href="login.html" class="text-sm text-gray-500 hover:text-gray-700">Logout</a>
+            </div>
         </div>
-    </div>
-    <div class="main-content">
+    </header>
+    
+    <!-- 主要内容区域 -->
+    <main class="min-h-screen">
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="main-content">
         <!-- 预警列表页 -->
         <div id="list-page" class="page-section active">
-            <div class="page-header">
-                <h1 class="page-title">Alerts</h1>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Alerts</h1>
             </div>
 
             <!-- 搜索栏 -->
@@ -93,30 +126,34 @@
                         <label class="form-label">Received Time</label>
                         <input type="date" class="form-input" id="searchDate">
                     </div>
-                    <div class="search-item">
-                        <button type="button" class="btn btn-primary" onclick="searchAlerts()">Search</button>
-                        <button type="reset" class="btn btn-default" style="margin-left: 8px;">Reset</button>
+                    <div class="search-item search-buttons">
+                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-primary" onclick="searchAlerts()">Search</button>
+                            <button type="reset" class="btn btn-default" onclick="document.querySelector('.search-form').reset();">Reset</button>
+                        </div>
                     </div>
                 </form>
             </div>
 
             <!-- 预警列表 -->
             <div class="card">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Alert ID</th>
-                            <th>Alert Type</th>
-                            <th>Descriptor</th>
-                            <th>Transaction Amount</th>
-                            <th>Transaction Time</th>
-                            <th>Card Last 4</th>
-                            <th>Status</th>
-                            <th>Received Time</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alertTableBody">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Alert ID</th>
+                                <th>Alert Type</th>
+                                <th>Descriptor</th>
+                                <th>Transaction Amount</th>
+                                <th>Transaction Time</th>
+                                <th>Card Last 4</th>
+                                <th>Status</th>
+                                <th>Received Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertTableBody">
                         <tr>
                             <td>ALT001</td>
                             <td><span class="tag tag-info">ETHOCA</span></td>
@@ -126,10 +163,10 @@
                             <td>1234</td>
                             <td><span class="tag tag-warning">Pending Feedback</span></td>
                             <td>2025-01-15 10:30:00</td>
-                            <td>
+                                <td>
                                 <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('ALT001')" class="action-link">View</a>
-                                    <a href="javascript:void(0)" onclick="showFeedback('ALT001')" class="action-link">Submit Feedback</a>
+                                    <a href="javascript:void(0)" onclick="showDetail('ALT001')" class="action-btn action-btn-primary">View</a>
+                                    <a href="javascript:void(0)" onclick="showFeedback('ALT001')" class="action-btn action-btn-secondary">Submit Feedback</a>
                                 </div>
                             </td>
                         </tr>
@@ -142,9 +179,9 @@
                             <td>5678</td>
                             <td><span class="tag tag-info">No Action Needed</span></td>
                             <td>2025-01-15 11:15:00</td>
-                            <td>
+                                <td>
                                 <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('ALT002')" class="action-link">View</a>
+                                    <a href="javascript:void(0)" onclick="showDetail('ALT002')" class="action-btn action-btn-primary">View</a>
                                 </div>
                             </td>
                         </tr>
@@ -157,14 +194,15 @@
                             <td>9012</td>
                             <td><span class="tag tag-success">Completed</span></td>
                             <td>2025-01-14 09:00:00</td>
-                            <td>
+                                <td>
                                 <div class="action-buttons">
-                                    <a href="javascript:void(0)" onclick="showDetail('ALT003')" class="action-link">View</a>
+                                    <a href="javascript:void(0)" onclick="showDetail('ALT003')" class="action-btn action-btn-primary">View</a>
                                 </div>
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                    </table>
+                </div>
                 <div class="pagination">
                     <button>Previous</button>
                     <button class="active">1</button>
@@ -176,13 +214,15 @@
 
         <!-- 预警详情页 -->
         <div id="detail-page" class="page-section">
-            <div class="breadcrumb">
+            <div class="breadcrumb mb-4">
                 <a onclick="showPage('list-page')">Alerts</a> > Alert Details
             </div>
-            <div class="page-header">
-                <h1 class="page-title">Alert Details</h1>
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Alert Details</h1>
                 <div class="action-buttons" id="detailActions">
-                    <button class="btn btn-primary" onclick="showFeedback(currentAlertId)" id="feedbackBtn" style="display: none;">Submit Feedback</button>
+                    <button class="btn btn-primary" onclick="showFeedback(currentAlertId)" id="feedbackBtn" style="display: none;">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Feedback
+                    </button>
                 </div>
             </div>
 
@@ -262,11 +302,11 @@
 
         <!-- ETHOCA反馈页 -->
         <div id="feedback-page" class="page-section">
-            <div class="breadcrumb">
+            <div class="breadcrumb mb-4">
                 <a onclick="showPage('list-page')">Alerts</a> > Submit Feedback
             </div>
-            <div class="page-header">
-                <h1 class="page-title">Submit ETHOCA Feedback</h1>
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Submit ETHOCA Feedback</h1>
             </div>
 
             <div class="card">
@@ -282,26 +322,26 @@
                     <div class="form-group">
                         <label class="form-label">Refund ID <span class="required">*</span></label>
                         <input type="text" class="form-input" name="refund_id" placeholder="Enter refund transaction ID" required>
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">
                             The refund transaction ID from your payment processor
                         </p>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Refund Amount <span class="required">*</span></label>
                         <input type="number" class="form-input" name="refund_amount" placeholder="0.00" step="0.01" min="0.01" required>
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">
                             Must be greater than 0, up to 2 decimal places
                         </p>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Refund Time <span class="required">*</span></label>
                         <input type="datetime-local" class="form-input" name="refund_time" required>
-                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">
                             When the refund was processed (cannot be a future time)
                         </p>
                     </div>
                     <div class="form-group">
-                        <p style="font-size: 12px; color: var(--text-secondary);">
+                        <p style="font-size: 12px; color: #6b7280;">
                             <strong>Note:</strong> You can only submit feedback once. After submission, it cannot be modified or revoked.
                         </p>
                     </div>
@@ -311,9 +351,13 @@
                     </div>
                 </form>
             </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 
+    <!-- JavaScript -->
+    <script src="../ui-components/js/common.js"></script>
     <script>
         let currentAlertId = '';
 

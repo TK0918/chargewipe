@@ -3,615 +3,622 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>服务商管理 - 拒付预警系统运营端</title>
-    <link rel="stylesheet" href="common.css">
+    <title>服务商管理 - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../ui-components/css/base.css">
+    <link rel="stylesheet" href="../ui-components/css/sidebar.css">
+    <link rel="stylesheet" href="../ui-components/css/components.css">
+    
     <style>
-        .page-section {
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        .page-section.active {
-            display: block;
+        .modal.active {
+            display: flex;
         }
-        .breadcrumb {
-            margin-bottom: 15px;
-            color: var(--text-secondary);
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        .breadcrumb a {
-            color: var(--primary-color);
-            text-decoration: none;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #6b7280;
             cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover {
+            color: #111827;
         }
         .form-section {
-            margin-bottom: 30px;
+            margin-bottom: 1.5rem;
         }
         .form-section-title {
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-lighter);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
         }
         .pricing-tiers {
-            margin-top: 15px;
+            margin-top: 1rem;
         }
         .tier-item {
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
             align-items: flex-end;
+            padding: 0.75rem;
+            background: #f9fafb;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
         }
-        .tier-item input {
+        .tier-range {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex: 0 0 200px;
+        }
+        .tier-range input {
             flex: 1;
+            min-width: 60px;
         }
-        .api-info-box {
-            background: var(--border-extra-light);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        .tier-range input:disabled {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
-        .api-info-box code {
-            background: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: monospace;
+        .tier-price-input {
+            flex: 0 0 120px;
+        }
+        .tier-price-input input {
+            width: 100%;
+        }
+        .tier-actions {
+            flex: 0 0 auto;
+        }
+        .add-tier-btn {
+            margin-top: 0.75rem;
+        }
+        .form-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .form-group.has-error .form-error {
+            display: block;
+        }
+        .form-group.has-error .form-input,
+        .form-group.has-error .form-select {
+            border-color: #ef4444;
         }
         .checkbox-group {
             display: flex;
-            gap: 20px;
+            gap: 1.5rem;
         }
         .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
         }
     </style>
 </head>
-<body>
-    <div class="header">
-        <div class="logo">拒付预警系统 - 运营端</div>
-        <div class="user-info">
-            <span>管理员</span>
-            <a href="login.html" class="action-link">退出</a>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- 侧边栏 -->
+        <aside id="sidebar" class="bg-white w-64 min-h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 mobile-menu-closed lg:mobile-menu-open fixed z-30">
+            <!-- 侧边栏头部 -->
+            <div class="flex items-center justify-center h-16 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                        Chargewipe
+                    </span>
+                </div>
+            </div>
+
+            <!-- 侧边栏菜单区 -->
+            <div id="sidebarMenuWrapper" class="overflow-y-auto" style="max-height:calc(100vh - 64px);">
+                <nav>
+                    <div class="px-4 py-4">
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="dashboard.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-chart-bar w-5 h-5 mr-3 text-gray-400"></i>
+                                    数据看板
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customers.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-users w-5 h-5 mr-3 text-gray-400"></i>
+                                    客户管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="providers.html" class="sidebar-item active flex items-center px-4 py-2 text-sm font-medium text-gray-900 rounded-lg bg-gray-100">
+                                    <i class="fas fa-server w-5 h-5 mr-3 text-orange-600"></i>
+                                    服务商管理
+                                </a>
+                            </li>
+                            <li>
+                                <a href="alerts.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-bell w-5 h-5 mr-3 text-gray-400"></i>
+                                    预警明细
+                                </a>
+                            </li>
+                            <li>
+                                <a href="work-orders.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-file-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    工单管理
+                                </a>
+                            </li>
+                            <li class="mt-4">
+                                <div class="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">客户流水</div>
+                            </li>
+                            <li>
+                                <a href="customer-flow/charges.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-money-bill-wave w-5 h-5 mr-3 text-gray-400"></i>
+                                    扣费记录
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/recharge.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-credit-card w-5 h-5 mr-3 text-gray-400"></i>
+                                    在线充值
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/transfer.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-exchange-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    线下转账
+                                </a>
+                            </li>
+                            <li>
+                                <a href="customer-flow/transactions.html" class="sidebar-item flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900">
+                                    <i class="fas fa-list-alt w-5 h-5 mr-3 text-gray-400"></i>
+                                    交易明细
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- 遮罩层 (移动端) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 opacity-0 hidden z-20 transition-opacity duration-300 ease-linear lg:hidden"></div>
+
+        <!-- 主要内容区域 -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- 顶部栏 -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+                    <!-- 左侧 -->
+                    <div class="flex items-center">
+                        <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-500">
+                            <i class="fas fa-bars text-lg"></i>
+                        </button>
+                        
+                        <div class="ml-4 lg:ml-0">
+                            <nav class="flex space-x-2 text-sm" aria-label="Breadcrumb">
+                                <span class="text-gray-500">运营端</span>
+                                <i class="fas fa-chevron-right text-gray-300 text-xs mt-0.5"></i>
+                                <span class="text-gray-900 font-medium">服务商管理</span>
+                            </nav>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧 -->
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <button class="p-2 text-gray-400 hover:text-gray-500 relative">
+                                <i class="fas fa-bell text-lg"></i>
+                                <span class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full flex items-center justify-center text-xs text-white">0</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-medium">A</span>
+                            </div>
+                            <span class="hidden md:block text-sm font-medium text-gray-700">管理员</span>
+                            <a href="login.html" class="text-sm text-gray-500 hover:text-gray-700">退出</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- 页面内容 -->
+            <main class="flex-1 overflow-y-auto bg-gray-50">
+                <div class="py-6">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="content-area">
+                            <div class="flex items-center justify-between mb-6">
+                                <h1 class="text-2xl font-bold text-gray-900">服务商管理</h1>
+                                <button class="btn btn-primary" onclick="showAddModal()">
+                                    <i class="fas fa-plus mr-2"></i>新增服务商
+                                </button>
+                            </div>
+
+                            <!-- 搜索栏 -->
+                            <div class="search-bar">
+                                <form class="search-form" onsubmit="return false;">
+                                    <div class="search-item">
+                                        <label class="form-label">服务商名称</label>
+                                        <input type="text" class="form-input" placeholder="请输入服务商名称" id="searchName">
+                                    </div>
+                                    <div class="search-item search-buttons">
+                                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button type="button" class="btn btn-primary" onclick="searchProviders()">搜索</button>
+                                            <button type="reset" class="btn btn-default" onclick="resetSearch()">重置</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- 服务商列表 -->
+                            <div class="card">
+                                <div class="table-container">
+                                    <table class="table" id="providersTable">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>服务商名称</th>
+                                                <th>状态</th>
+                                                <th>授权API</th>
+                                                <th>授权修改API</th>
+                                                <th>预警API</th>
+                                                <th>ETHOCA反馈API</th>
+                                                <th>最后更新人</th>
+                                                <th class="sortable">最后更新时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="providersTableBody">
+                                            <tr>
+                                                <td>PROV001</td>
+                                                <td>服务商A</td>
+                                                <td><span class="status-badge status-active">启用</span></td>
+                                                <td>是</td>
+                                                <td>是</td>
+                                                <td>是</td>
+                                                <td>是</td>
+                                                <td>张三(zhangsan@example.com)</td>
+                                                <td>2026-01-15 10:30:00</td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <a href="javascript:void(0)" onclick="showEditModal('PROV001')" class="action-btn action-btn-primary">编辑</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>PROV002</td>
+                                                <td>服务商B</td>
+                                                <td><span class="status-badge status-disabled">停用</span></td>
+                                                <td>否</td>
+                                                <td>否</td>
+                                                <td>是</td>
+                                                <td>是</td>
+                                                <td>李四(lisi@example.com)</td>
+                                                <td>2026-01-14 14:20:00</td>
+                                                <td>
+                                                    <div class="action-buttons">
+                                                        <a href="javascript:void(0)" onclick="showEditModal('PROV002')" class="action-btn action-btn-primary">编辑</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="pagination">
+                                    <div class="pagination-controls">
+                                        <button onclick="changePage(-1)" disabled>上一页</button>
+                                        <button class="active" onclick="changePage(1)">1</button>
+                                        <button onclick="changePage(2)">2</button>
+                                        <button onclick="changePage(1)">下一页</button>
+                                    </div>
+                                    <div class="pagination-info">
+                                        <span>共 <span id="totalCount">100</span> 条</span>
+                                    </div>
+                                    <div class="pagination-page-size">
+                                        <span>每页</span>
+                                        <select id="pageSize" onchange="changePageSize()">
+                                            <option value="10" selected>10</option>
+                                            <option value="20">20</option>
+                                            <option value="30">30</option>
+                                            <option value="50">50</option>
+                                            <option value="100">100</option>
+                                        </select>
+                                        <span>条</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
-    <div class="main-content">
-        <div class="sidebar">
-            <ul class="sidebar-menu">
-                <li><a href="dashboard.html" style="text-decoration: none; color: inherit;">数据看板</a></li>
-                <li><a href="customers.html" style="text-decoration: none; color: inherit;">客户管理</a></li>
-                <li class="active">服务商管理</li>
-                <li><a href="alerts.html" style="text-decoration: none; color: inherit;">预警明细</a></li>
-            </ul>
-        </div>
-        <div class="content-area">
-            <!-- 服务商列表页 -->
-            <div id="list-page" class="page-section active">
-                <div class="page-header">
-                    <h1 class="page-title">服务商管理</h1>
-                    <button class="btn btn-primary" onclick="showPage('new-page')">新增服务商</button>
-                </div>
 
-                <!-- 搜索栏 -->
-                <div class="search-bar">
-                    <form class="search-form" onsubmit="return false;">
-                        <div class="search-item">
-                            <label class="form-label">服务商名称</label>
-                            <input type="text" class="form-input" placeholder="请输入服务商名称" id="searchName">
-                        </div>
-                        <div class="search-item">
-                            <label class="form-label">支持模式</label>
-                            <select class="form-select" id="searchMode">
-                                <option value="">全部</option>
-                                <option value="ETHOCA">ETHOCA</option>
-                                <option value="RDR">RDR</option>
-                                <option value="both">两者</option>
-                            </select>
-                        </div>
-                        <div class="search-item">
-                            <label class="form-label">数据获取方式</label>
-                            <select class="form-select" id="searchFetchMode">
-                                <option value="">全部</option>
-                                <option value="push">推送</option>
-                                <option value="poll">轮询</option>
-                            </select>
-                        </div>
-                        <div class="search-item">
-                            <label class="form-label">状态</label>
-                            <select class="form-select" id="searchStatus">
-                                <option value="">全部</option>
-                                <option value="active">启用</option>
-                                <option value="disabled">停用</option>
-                            </select>
-                        </div>
-                        <div class="search-item">
-                            <button type="button" class="btn btn-primary" onclick="searchProviders()">搜索</button>
-                            <button type="reset" class="btn btn-default" style="margin-left: 10px;">重置</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- 服务商列表 -->
-                <div class="card">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>服务商ID</th>
-                                <th>服务商名称</th>
-                                <th>支持模式</th>
-                                <th>数据获取方式</th>
-                                <th>轮询间隔</th>
-                                <th>状态</th>
-                                <th>创建时间</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="providerTableBody">
-                            <tr>
-                                <td>PROV001</td>
-                                <td>Provider A</td>
-                                <td>ETHOCA, RDR</td>
-                                <td>推送</td>
-                                <td>-</td>
-                                <td><span class="tag tag-success">启用</span></td>
-                                <td>2024-11-15 10:00:00</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="javascript:void(0)" onclick="showDetail('PROV001')" class="action-link">详情</a>
-                                        <a href="javascript:void(0)" onclick="showEdit('PROV001')" class="action-link">编辑</a>
-                                        <a href="javascript:void(0)" onclick="showApiConfig('PROV001')" class="action-link">API配置</a>
-                                        <a href="javascript:void(0)" onclick="showPricing('PROV001')" class="action-link">价格</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>PROV002</td>
-                                <td>Provider B</td>
-                                <td>ETHOCA</td>
-                                <td>轮询</td>
-                                <td>60分钟</td>
-                                <td><span class="tag tag-success">启用</span></td>
-                                <td>2024-11-20 14:30:00</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="javascript:void(0)" onclick="showDetail('PROV002')" class="action-link">详情</a>
-                                        <a href="javascript:void(0)" onclick="showEdit('PROV002')" class="action-link">编辑</a>
-                                        <a href="javascript:void(0)" onclick="showApiConfig('PROV002')" class="action-link">API配置</a>
-                                        <a href="javascript:void(0)" onclick="showPricing('PROV002')" class="action-link">价格</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="pagination">
-                        <button>上一页</button>
-                        <button class="active">1</button>
-                        <button>2</button>
-                        <button>下一页</button>
-                    </div>
-                </div>
+    <!-- 新增/编辑服务商弹窗 -->
+    <div id="providerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">新增服务商</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-
-            <!-- 新增服务商页 -->
-            <div id="new-page" class="page-section">
-                <div class="breadcrumb">
-                    <a onclick="showPage('list-page')">服务商管理</a> > 新增服务商
-                </div>
-                <div class="page-header">
-                    <h1 class="page-title">新增服务商</h1>
-                </div>
-
-                <div class="card">
-                    <form id="providerNewForm">
-                        <div class="form-section">
-                            <div class="form-section-title">基本信息</div>
-                            <div class="form-group">
-                                <label class="form-label">服务商名称 <span class="required">*</span></label>
-                                <input type="text" class="form-input" name="provider_name" required>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">联系方式</label>
-                                <input type="text" class="form-input" name="contact" placeholder="联系电话或邮箱">
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <div class="form-section-title">支持模式</div>
-                            <div class="checkbox-group">
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="supportEthoca" name="supported_modes" value="ETHOCA">
-                                    <label for="supportEthoca">ETHOCA</label>
-                                </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="supportRdr" name="supported_modes" value="RDR">
-                                    <label for="supportRdr">RDR</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-section">
-                            <div class="form-section-title">数据获取方式</div>
-                            <div class="form-group">
-                                <label class="form-label">获取方式 <span class="required">*</span></label>
-                                <select class="form-select" name="fetch_mode" id="fetchMode" required onchange="toggleFetchMode()">
-                                    <option value="">请选择</option>
-                                    <option value="push">推送</option>
-                                    <option value="poll">轮询</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="pollIntervalGroup" style="display: none;">
-                                <label class="form-label">轮询间隔（分钟）</label>
-                                <input type="number" class="form-input" name="poll_interval" value="60" min="1">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">创建服务商</button>
-                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showPage('list-page')">取消</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- 服务商详情页 -->
-            <div id="detail-page" class="page-section">
-                <div class="breadcrumb">
-                    <a onclick="showPage('list-page')">服务商管理</a> > 服务商详情
-                </div>
-                <div class="page-header">
-                    <h1 class="page-title">服务商详情</h1>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary" onclick="showEdit(currentProviderId)">编辑</button>
-                        <button class="btn btn-default" onclick="showApiConfig(currentProviderId)">配置API</button>
-                        <button class="btn btn-default" onclick="showPricing(currentProviderId)">设置价格</button>
-                        <button class="btn btn-default" onclick="testConnection()">测试连接</button>
-                    </div>
-                </div>
-
-                <!-- 基本信息 -->
-                <div class="card">
-                    <div class="card-header">基本信息</div>
-                    <table class="table" style="max-width: 600px;">
-                        <tr>
-                            <td style="width: 150px; font-weight: 600;">服务商ID</td>
-                            <td id="detailProviderId">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">服务商名称</td>
-                            <td id="detailProviderName">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">支持模式</td>
-                            <td id="detailSupportedModes">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">数据获取方式</td>
-                            <td id="detailFetchMode">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">轮询间隔</td>
-                            <td id="detailPollInterval">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">状态</td>
-                            <td id="detailProviderStatus">-</td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight: 600;">创建时间</td>
-                            <td id="detailProviderCreatedAt">-</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <!-- 预警统计 -->
-                <div class="card">
-                    <div class="card-header">预警统计</div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                        <div class="stats-card">
-                            <div class="title">总预警数</div>
-                            <div class="value" id="detailTotalAlerts">856</div>
-                        </div>
-                        <div class="stats-card">
-                            <div class="title">总成本</div>
-                            <div class="value" id="detailTotalCost">$6,848</div>
-                        </div>
-                        <div class="stats-card">
-                            <div class="title">总收入</div>
-                            <div class="value" id="detailTotalRevenue">$10,272</div>
-                        </div>
-                        <div class="stats-card">
-                            <div class="title">毛利</div>
-                            <div class="value" id="detailProfit">$3,424</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 编辑服务商页 -->
-            <div id="edit-page" class="page-section">
-                <div class="breadcrumb">
-                    <a onclick="showPage('list-page')">服务商管理</a> > 编辑服务商
-                </div>
-                <div class="page-header">
-                    <h1 class="page-title">编辑服务商</h1>
-                </div>
-
-                <div class="card">
-                    <form id="providerEditForm">
-                        <div class="form-group">
-                            <label class="form-label">服务商名称 <span class="required">*</span></label>
-                            <input type="text" class="form-input" name="provider_name" id="editProviderName" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">支持模式</label>
-                            <div class="checkbox-group">
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="editSupportEthoca" name="supported_modes" value="ETHOCA">
-                                    <label for="editSupportEthoca">ETHOCA</label>
-                                </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" id="editSupportRdr" name="supported_modes" value="RDR">
-                                    <label for="editSupportRdr">RDR</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">数据获取方式 <span class="required">*</span></label>
-                            <select class="form-select" name="fetch_mode" id="editFetchMode" required onchange="toggleFetchModeEdit()">
-                                <option value="push">推送</option>
-                                <option value="poll">轮询</option>
-                            </select>
-                        </div>
-                        <div class="form-group" id="editPollIntervalGroup">
-                            <label class="form-label">轮询间隔（分钟）</label>
-                            <input type="number" class="form-input" name="poll_interval" id="editPollInterval" min="1">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">状态 <span class="required">*</span></label>
-                            <select class="form-select" name="status" id="editProviderStatus" required>
-                                <option value="active">启用</option>
-                                <option value="disabled">停用</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">保存</button>
-                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentProviderId)">取消</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- API配置页 -->
-            <div id="api-config-page" class="page-section">
-                <div class="breadcrumb">
-                    <a onclick="showPage('list-page')">服务商管理</a> > API配置
-                </div>
-                <div class="page-header">
-                    <h1 class="page-title">服务商API配置</h1>
-                </div>
-
-                <div class="card">
-                    <div class="form-section">
-                        <div class="form-section-title">数据获取方式</div>
-                        <div class="form-group">
-                            <label class="form-label">当前方式</label>
-                            <input type="text" class="form-input" id="apiConfigFetchMode" readonly>
-                        </div>
-                    </div>
-
-                    <!-- 推送模式配置 -->
-                    <div id="pushConfig" class="form-section">
-                        <div class="form-section-title">推送模式配置</div>
-                        <div class="api-info-box">
-                            <p><strong>Webhook URL（提供给服务商）:</strong></p>
-                            <code id="webhookUrl">https://api.example.com/api/webhook/providers/PROV001/alerts</code>
-                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="copyToClipboard('webhookUrl')">复制</button>
-                        </div>
-                        <div class="api-info-box">
-                            <p><strong>验证Token（提供给服务商）:</strong></p>
-                            <code id="webhookToken">abc123def456ghi789</code>
-                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="copyToClipboard('webhookToken')">复制</button>
-                        </div>
-                        <p style="font-size: 12px; color: var(--text-secondary);">
-                            请将以上信息提供给服务商，服务商需要配置推送地址和验证Token
-                        </p>
-                    </div>
-
-                    <!-- 轮询模式配置 -->
-                    <div id="pollConfig" class="form-section" style="display: none;">
-                        <div class="form-section-title">轮询模式配置</div>
-                        <div class="form-group">
-                            <label class="form-label">API Endpoint <span class="required">*</span></label>
-                            <input type="url" class="form-input" name="api_endpoint" placeholder="https://api.provider.com/v1/alerts">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">API Key <span class="required">*</span></label>
-                            <input type="text" class="form-input" name="api_key" placeholder="Enter API Key">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">API Secret</label>
-                            <input type="password" class="form-input" name="api_secret" placeholder="Enter API Secret (optional)">
-                        </div>
-                    </div>
-
-                    <!-- 通用接口配置 -->
-                    <div class="form-section">
-                        <div class="form-section-title">通用接口配置</div>
-                        <div class="form-group">
-                            <label class="form-label">授权接口URL <span class="required">*</span></label>
-                            <input type="url" class="form-input" name="auth_url" placeholder="https://api.provider.com/v1/authorizations">
-                        </div>
-                        <div class="form-group" id="feedbackUrlGroup">
-                            <label class="form-label">反馈接口URL <span class="required">*</span></label>
-                            <input type="url" class="form-input" name="feedback_url" placeholder="https://api.provider.com/v1/feedback">
-                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                                仅ETHOCA模式需要配置
-                            </p>
-                        </div>
-                    </div>
-
+            <form id="providerForm" onsubmit="return false;">
+                <input type="hidden" id="providerId" name="providerId">
+                
+                <div class="form-section">
+                    <div class="form-section-title">基本信息</div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary" onclick="saveApiConfig()">保存配置</button>
-                        <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="testApiConnection()">测试连接</button>
-                        <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentProviderId)">取消</button>
+                        <label class="form-label">服务商名称 <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="providerName" name="providerName" maxlength="32" required>
+                        <div class="form-error">服务商名称已存在，请更换其他名称</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">状态 <span class="required">*</span></label>
+                        <select class="form-select" id="providerStatus" name="providerStatus" required>
+                            <option value="enabled">启用</option>
+                            <option value="disabled">停用</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <!-- 成本价格设置页 -->
-            <div id="pricing-page" class="page-section">
-                <div class="breadcrumb">
-                    <a onclick="showPage('list-page')">服务商管理</a> > 成本价格设置
-                </div>
-                <div class="page-header">
-                    <h1 class="page-title">服务商成本价格设置</h1>
+                <div class="form-section">
+                    <div class="form-section-title">API支持</div>
+                    <div class="form-group">
+                        <label class="form-label">授权API <span class="required">*</span></label>
+                        <select class="form-select" id="authApi" name="authApi" required>
+                            <option value="">请选择</option>
+                            <option value="yes">是</option>
+                            <option value="no">否</option>
+                        </select>
+                        <div class="form-error">请选择</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">授权修改API <span class="required">*</span></label>
+                        <select class="form-select" id="authModifyApi" name="authModifyApi" required>
+                            <option value="">请选择</option>
+                            <option value="yes">是</option>
+                            <option value="no">否</option>
+                        </select>
+                        <div class="form-error">请选择</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">预警API <span class="required">*</span></label>
+                        <select class="form-select" id="alertApi" name="alertApi" required>
+                            <option value="">请选择</option>
+                            <option value="yes">是</option>
+                            <option value="no">否</option>
+                        </select>
+                        <div class="form-error">请选择</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ETHOCA反馈API <span class="required">*</span></label>
+                        <select class="form-select" id="ethocaFeedbackApi" name="ethocaFeedbackApi" required>
+                            <option value="">请选择</option>
+                            <option value="yes">是</option>
+                            <option value="no">否</option>
+                        </select>
+                        <div class="form-error">请选择</div>
+                    </div>
                 </div>
 
-                <div class="card">
-                    <form id="providerPricingForm">
+                <div class="form-section">
+                    <div class="form-section-title">服务商成本</div>
+                    <div class="form-group">
+                        <label class="form-label">定价模式 <span class="required">*</span></label>
+                        <select class="form-select" id="pricingMode" name="pricingMode" required onchange="togglePricingMode()">
+                            <option value="fixed">固定价格</option>
+                            <option value="tier">梯度价格</option>
+                        </select>
+                    </div>
+
+                    <!-- 固定价格 -->
+                    <div id="fixedPricing" class="pricing-section">
                         <div class="form-group">
-                            <label class="form-label">定价模式 <span class="required">*</span></label>
-                            <select class="form-select" name="pricing_mode" id="providerPricingMode" required onchange="toggleProviderPricingMode()">
-                                <option value="fixed">固定价格</option>
-                                <option value="tier">阶梯价格</option>
-                            </select>
+                            <label class="form-label">ETHOCA单价 <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="fixedEthocaPrice" name="fixedEthocaPrice" step="0.01" min="0" placeholder="0.00" required>
                         </div>
-
-                        <!-- 固定价格 -->
-                        <div id="fixedProviderPricing" class="pricing-section">
-                            <div class="form-group">
-                                <label class="form-label">ETHOCA成本价 ($)</label>
-                                <input type="number" class="form-input" name="ethoca_cost" step="0.01" min="0" placeholder="8.00">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">RDR成本价 ($)</label>
-                                <input type="number" class="form-input" name="rdr_cost" step="0.01" min="0" placeholder="6.00">
-                            </div>
-                        </div>
-
-                        <!-- 阶梯价格 -->
-                        <div id="tierProviderPricing" class="pricing-section" style="display: none;">
-                            <div class="pricing-tiers">
-                                <div class="tier-item">
-                                    <div style="flex: 0 0 120px;">
-                                        <label class="form-label">阶梯1: 0-100条</label>
-                                    </div>
-                                    <input type="number" class="form-input" placeholder="ETHOCA成本" step="0.01" min="0">
-                                    <input type="number" class="form-input" placeholder="RDR成本" step="0.01" min="0">
-                                </div>
-                                <div class="tier-item">
-                                    <div style="flex: 0 0 120px;">
-                                        <label class="form-label">阶梯2: 101-500条</label>
-                                    </div>
-                                    <input type="number" class="form-input" placeholder="ETHOCA成本" step="0.01" min="0">
-                                    <input type="number" class="form-input" placeholder="RDR成本" step="0.01" min="0">
-                                </div>
-                                <div class="tier-item">
-                                    <div style="flex: 0 0 120px;">
-                                        <label class="form-label">阶梯3: 501+条</label>
-                                    </div>
-                                    <input type="number" class="form-input" placeholder="ETHOCA成本" step="0.01" min="0">
-                                    <input type="number" class="form-input" placeholder="RDR成本" step="0.01" min="0">
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary">保存</button>
-                            <button type="button" class="btn btn-default" style="margin-left: 10px;" onclick="showDetail(currentProviderId)">取消</button>
+                            <label class="form-label">RDR单价 <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="fixedRdrPrice" name="fixedRdrPrice" step="0.01" min="0" placeholder="0.00" required>
                         </div>
-                    </form>
+                        <div class="form-group">
+                            <label class="form-label">CDRN单价 <span class="required">*</span></label>
+                            <input type="number" class="form-input" id="fixedCdrnPrice" name="fixedCdrnPrice" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                    </div>
+
+                    <!-- 梯度价格 -->
+                    <div id="tierPricing" class="pricing-section" style="display: none;">
+                        <div class="pricing-tiers" id="tierList">
+                            <!-- 梯度项将动态插入这里 -->
+                        </div>
+                        <button type="button" class="btn btn-default add-tier-btn" onclick="addTier()">
+                            <i class="fas fa-plus mr-2"></i>添加梯度
+                        </button>
+                    </div>
                 </div>
-            </div>
+
+                <div class="form-group" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-default" style="margin-left: 8px;" onclick="closeModal()">取消</button>
+                </div>
+            </form>
         </div>
     </div>
 
+    <!-- JavaScript -->
+    <script src="../ui-components/js/sidebar.js"></script>
+    <script src="../ui-components/js/common.js"></script>
     <script>
+        let currentPage = 1;
+        let pageSize = 10;
         let currentProviderId = '';
+        let tierCount = 0;
 
-        // 页面切换函数
-        function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active');
+        // 初始化表格排序
+        document.addEventListener('DOMContentLoaded', function() {
+            initTableSort('providersTable');
+            initTierPricing();
+        });
+
+        // 初始化梯度价格（预设3个梯度）
+        function initTierPricing() {
+            const tierList = document.getElementById('tierList');
+            tierList.innerHTML = '';
+            tierCount = 0;
+            
+            // 添加3个预设梯度
+            addTier(0, 100);
+            addTier(101, 500);
+            addTier(501, null); // 最后一个梯度max为null，显示为501+
+        }
+
+        // 添加梯度
+        function addTier(min = null, max = null) {
+            tierCount++;
+            const tierList = document.getElementById('tierList');
+            const tierItem = document.createElement('div');
+            tierItem.className = 'tier-item';
+            tierItem.dataset.tierIndex = tierCount;
+            
+            // 计算min值
+            let calculatedMin = min;
+            if (calculatedMin === null) {
+                const existingTiers = tierList.querySelectorAll('.tier-item');
+                if (existingTiers.length > 0) {
+                    const lastTier = existingTiers[existingTiers.length - 1];
+                    const lastMax = parseInt(lastTier.querySelector('.tier-max').value) || 0;
+                    calculatedMin = lastMax + 1;
+                } else {
+                    calculatedMin = 0;
+                }
+            }
+            
+            tierItem.innerHTML = `
+                <div class="tier-range">
+                    <input type="number" class="form-input tier-min" value="${calculatedMin}" min="0" ${calculatedMin === 0 ? 'disabled' : ''} onchange="updateTierRange(${tierCount})">
+                    <span style="color: #6b7280;">-</span>
+                    <input type="number" class="form-input tier-max" value="${max || ''}" min="${calculatedMin + 1}" placeholder="+" onchange="updateTierRange(${tierCount})">
+                    ${max === null ? '<span style="color: #6b7280; margin-left: 0.5rem;">+</span>' : ''}
+                </div>
+                <div class="tier-price-input">
+                    <input type="number" class="form-input" name="tierEthocaPrice[]" step="0.01" min="0" placeholder="ETHOCA单价" required>
+                </div>
+                <div class="tier-price-input">
+                    <input type="number" class="form-input" name="tierRdrPrice[]" step="0.01" min="0" placeholder="RDR单价" required>
+                </div>
+                <div class="tier-price-input">
+                    <input type="number" class="form-input" name="tierCdrnPrice[]" step="0.01" min="0" placeholder="CDRN单价" required>
+                </div>
+                <div class="tier-actions">
+                    <button type="button" class="btn btn-default" onclick="removeTier(${tierCount})" style="padding: 0.375rem 0.75rem;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            
+            tierList.appendChild(tierItem);
+        }
+
+        // 更新梯度范围
+        function updateTierRange(tierIndex) {
+            const tierItem = document.querySelector(`[data-tier-index="${tierIndex}"]`);
+            const minInput = tierItem.querySelector('.tier-min');
+            const maxInput = tierItem.querySelector('.tier-max');
+            const min = parseInt(minInput.value) || 0;
+            const max = parseInt(maxInput.value) || null;
+            
+            // 更新下一个梯度的min值
+            const nextTier = tierItem.nextElementSibling;
+            if (nextTier) {
+                const nextMinInput = nextTier.querySelector('.tier-min');
+                if (max !== null) {
+                    nextMinInput.value = max + 1;
+                    nextMinInput.disabled = false;
+                } else {
+                    nextMinInput.disabled = true;
+                }
+            }
+        }
+
+        // 删除梯度
+        function removeTier(tierIndex) {
+            const tierItem = document.querySelector(`[data-tier-index="${tierIndex}"]`);
+            if (tierItem) {
+                tierItem.remove();
+                // 重新计算所有梯度的min值
+                recalculateTierRanges();
+            }
+        }
+
+        // 重新计算梯度范围
+        function recalculateTierRanges() {
+            const tierItems = document.querySelectorAll('.tier-item');
+            let prevMax = -1;
+            tierItems.forEach((item, index) => {
+                const minInput = item.querySelector('.tier-min');
+                const maxInput = item.querySelector('.tier-max');
+                const newMin = prevMax + 1;
+                minInput.value = newMin;
+                minInput.disabled = index === 0;
+                prevMax = parseInt(maxInput.value) || prevMax;
             });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        // 显示服务商详情
-        function showDetail(providerId) {
-            currentProviderId = providerId;
-            // 模拟数据
-            document.getElementById('detailProviderId').textContent = providerId;
-            document.getElementById('detailProviderName').textContent = 'Provider A';
-            document.getElementById('detailSupportedModes').textContent = 'ETHOCA, RDR';
-            document.getElementById('detailFetchMode').textContent = '推送';
-            document.getElementById('detailPollInterval').textContent = '-';
-            document.getElementById('detailProviderStatus').innerHTML = '<span class="tag tag-success">启用</span>';
-            document.getElementById('detailProviderCreatedAt').textContent = '2024-11-15 10:00:00';
-            
-            showPage('detail-page');
-        }
-
-        // 显示编辑页面
-        function showEdit(providerId) {
-            currentProviderId = providerId;
-            document.getElementById('editProviderName').value = 'Provider A';
-            document.getElementById('editSupportEthoca').checked = true;
-            document.getElementById('editSupportRdr').checked = true;
-            document.getElementById('editFetchMode').value = 'push';
-            document.getElementById('editProviderStatus').value = 'active';
-            
-            showPage('edit-page');
-        }
-
-        // 显示API配置页面
-        function showApiConfig(providerId) {
-            currentProviderId = providerId;
-            const fetchMode = 'push'; // 从API获取
-            document.getElementById('apiConfigFetchMode').value = fetchMode === 'push' ? '推送' : '轮询';
-            
-            if (fetchMode === 'push') {
-                document.getElementById('pushConfig').style.display = 'block';
-                document.getElementById('pollConfig').style.display = 'none';
-            } else {
-                document.getElementById('pushConfig').style.display = 'none';
-                document.getElementById('pollConfig').style.display = 'block';
-            }
-            
-            showPage('api-config-page');
-        }
-
-        // 显示定价设置页面
-        function showPricing(providerId) {
-            currentProviderId = providerId;
-            showPage('pricing-page');
-        }
-
-        // 切换数据获取方式
-        function toggleFetchMode() {
-            const mode = document.getElementById('fetchMode').value;
-            const pollIntervalGroup = document.getElementById('pollIntervalGroup');
-            if (mode === 'poll') {
-                pollIntervalGroup.style.display = 'block';
-            } else {
-                pollIntervalGroup.style.display = 'none';
-            }
-        }
-
-        function toggleFetchModeEdit() {
-            const mode = document.getElementById('editFetchMode').value;
-            const pollIntervalGroup = document.getElementById('editPollIntervalGroup');
-            if (mode === 'poll') {
-                pollIntervalGroup.style.display = 'block';
-            } else {
-                pollIntervalGroup.style.display = 'none';
-            }
         }
 
         // 切换定价模式
-        function toggleProviderPricingMode() {
-            const mode = document.getElementById('providerPricingMode').value;
-            const fixedPricing = document.getElementById('fixedProviderPricing');
-            const tierPricing = document.getElementById('tierProviderPricing');
+        function togglePricingMode() {
+            const mode = document.getElementById('pricingMode').value;
+            const fixedPricing = document.getElementById('fixedPricing');
+            const tierPricing = document.getElementById('tierPricing');
+            
             if (mode === 'fixed') {
                 fixedPricing.style.display = 'block';
                 tierPricing.style.display = 'none';
@@ -619,53 +626,156 @@
                 fixedPricing.style.display = 'none';
                 tierPricing.style.display = 'block';
             }
+            
+            // 切换模式时清空价格配置
+            if (mode === 'fixed') {
+                document.getElementById('fixedEthocaPrice').value = '';
+                document.getElementById('fixedRdrPrice').value = '';
+                document.getElementById('fixedCdrnPrice').value = '';
+            } else {
+                initTierPricing();
+            }
         }
 
-        // 复制到剪贴板
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            element.select();
-            document.execCommand('copy');
-            alert('已复制到剪贴板');
+        // 显示新增弹窗
+        function showAddModal() {
+            currentProviderId = '';
+            document.getElementById('modalTitle').textContent = '新增服务商';
+            document.getElementById('providerForm').reset();
+            document.getElementById('providerId').value = '';
+            document.getElementById('providerStatus').value = 'enabled';
+            document.getElementById('pricingMode').value = 'fixed';
+            togglePricingMode();
+            initTierPricing();
+            openModal();
+        }
+
+        // 显示编辑弹窗
+        function showEditModal(providerId) {
+            currentProviderId = providerId;
+            document.getElementById('modalTitle').textContent = '编辑服务商';
+            
+            // 模拟数据加载
+            document.getElementById('providerId').value = providerId;
+            document.getElementById('providerName').value = '服务商A';
+            document.getElementById('providerStatus').value = 'enabled';
+            document.getElementById('authApi').value = 'yes';
+            document.getElementById('authModifyApi').value = 'yes';
+            document.getElementById('alertApi').value = 'yes';
+            document.getElementById('ethocaFeedbackApi').value = 'yes';
+            document.getElementById('pricingMode').value = 'fixed';
+            togglePricingMode();
+            document.getElementById('fixedEthocaPrice').value = '8.00';
+            document.getElementById('fixedRdrPrice').value = '6.00';
+            document.getElementById('fixedCdrnPrice').value = '5.00';
+            
+            openModal();
+        }
+
+        // 打开弹窗
+        function openModal() {
+            document.getElementById('providerModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('providerModal').classList.remove('active');
         }
 
         // 搜索服务商
         function searchProviders() {
-            alert('搜索功能需要连接后端API');
+            const params = {
+                name: document.getElementById('searchName').value.trim(),
+                page: currentPage,
+                pageSize: pageSize
+            };
+            
+            showMessage('搜索功能需要后端API支持', 'info');
         }
 
-        // 测试连接
-        function testConnection() {
-            alert('测试连接功能需要连接后端API');
-        }
-
-        function testApiConnection() {
-            alert('测试API连接功能需要连接后端API');
-        }
-
-        function saveApiConfig() {
-            alert('保存API配置功能需要连接后端API');
-            showDetail(currentProviderId);
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('searchName').value = '';
+            currentPage = 1;
+            searchProviders();
         }
 
         // 表单提交
-        document.getElementById('providerNewForm').addEventListener('submit', function(e) {
+        document.getElementById('providerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('创建服务商功能需要连接后端API');
-            showPage('list-page');
+            
+            // 验证表单
+            const providerName = document.getElementById('providerName').value.trim();
+            if (!providerName) {
+                showMessage('请输入服务商名称', 'error');
+                return;
+            }
+            
+            const authApi = document.getElementById('authApi').value;
+            const authModifyApi = document.getElementById('authModifyApi').value;
+            const alertApi = document.getElementById('alertApi').value;
+            const ethocaFeedbackApi = document.getElementById('ethocaFeedbackApi').value;
+            
+            if (!authApi || !authModifyApi || !alertApi || !ethocaFeedbackApi) {
+                showMessage('请选择所有API支持选项', 'error');
+                return;
+            }
+            
+            const pricingMode = document.getElementById('pricingMode').value;
+            if (pricingMode === 'fixed') {
+                const ethocaPrice = document.getElementById('fixedEthocaPrice').value;
+                const rdrPrice = document.getElementById('fixedRdrPrice').value;
+                const cdrnPrice = document.getElementById('fixedCdrnPrice').value;
+                if (!ethocaPrice || !rdrPrice || !cdrnPrice) {
+                    showMessage('请填写所有固定价格', 'error');
+                    return;
+                }
+            } else {
+                const tierItems = document.querySelectorAll('.tier-item');
+                if (tierItems.length === 0) {
+                    showMessage('请至少添加一个梯度', 'error');
+                    return;
+                }
+                // 验证每个梯度的价格
+                let hasError = false;
+                tierItems.forEach(item => {
+                    const inputs = item.querySelectorAll('input[type="number"]:not(.tier-min):not(.tier-max)');
+                    inputs.forEach(input => {
+                        if (!input.value) {
+                            hasError = true;
+                        }
+                    });
+                });
+                if (hasError) {
+                    showMessage('请填写所有梯度的价格', 'error');
+                    return;
+                }
+            }
+            
+            // 调用API保存
+            const action = currentProviderId ? '更新' : '创建';
+            showMessage(`服务商${action}成功`, 'success');
+            closeModal();
+            searchProviders();
         });
 
-        document.getElementById('providerEditForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('更新服务商功能需要连接后端API');
-            showDetail(currentProviderId);
-        });
+        // 分页
+        function changePage(page) {
+            if (page === -1) {
+                currentPage = Math.max(1, currentPage - 1);
+            } else if (page === 'next') {
+                currentPage++;
+            } else {
+                currentPage = page;
+            }
+            searchProviders();
+        }
 
-        document.getElementById('providerPricingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('保存成本价格设置功能需要连接后端API');
-            showDetail(currentProviderId);
-        });
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSize').value);
+            currentPage = 1;
+            searchProviders();
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charges - Chargewipe</title>
+    
+    <!-- 外部依赖 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="../ui-components/css/base.css">
+    <link rel="stylesheet" href="../ui-components/css/components.css">
+    
+    <style>
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+        .breadcrumb {
+            margin-bottom: 15px;
+            color: #6b7280;
+        }
+        .breadcrumb a {
+            color: #f97316;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .status-uncharged {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .status-charged {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                </div>
+                <span class="ml-3 text-xl font-bold bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
+                    Chargewipe
+                </span>
+            </div>
+            
+            <!-- 导航菜单 -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="authorizations.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Authorizations</a>
+                <a href="alerts.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Alerts</a>
+                <a href="wallet.html" class="text-sm font-medium text-gray-600 hover:text-orange-600 transition-colors">Wallet</a>
+                <a href="charges.html" class="text-sm font-medium text-orange-600 border-b-2 border-orange-600 pb-1">Charges</a>
+            </nav>
+            
+            <!-- 用户信息 -->
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-gradient-to-r from-orange-300 to-orange-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">C</span>
+                </div>
+                <span class="hidden md:block text-sm font-medium text-gray-700">Customer A</span>
+                <a href="login.html" class="text-sm text-gray-500 hover:text-gray-700">Logout</a>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主要内容区域 -->
+    <main class="min-h-screen">
+        <div class="py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="main-content">
+        <!-- 扣费记录列表页 -->
+        <div id="list-page" class="page-section active">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900">Charges</h1>
+            </div>
+
+            <!-- 搜索栏 -->
+            <div class="search-bar">
+                <form class="search-form" onsubmit="return false;">
+                    <div class="search-item">
+                        <label class="form-label">Time</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="date" class="form-input" id="searchStartDate" style="flex: 1; min-width: 0;">
+                            <span style="color: #6b7280; white-space: nowrap; flex-shrink: 0;">to</span>
+                            <input type="date" class="form-input" id="searchEndDate" style="flex: 1; min-width: 0;">
+                        </div>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            Default: Last 30 days (including today)
+                        </p>
+                    </div>
+                    <div class="search-item">
+                        <label class="form-label">Alert ID</label>
+                        <input type="text" class="form-input" id="searchAlertId" placeholder="Enter Alert ID">
+                    </div>
+                    <div class="search-item">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" id="searchStatus">
+                            <option value="">All</option>
+                            <option value="Uncharged">Uncharged</option>
+                            <option value="Charged">Charged</option>
+                        </select>
+                    </div>
+                    <div class="search-item search-buttons">
+                        <label class="form-label" style="visibility: hidden;">Actions</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" class="btn btn-primary" onclick="searchCharges()">Search</button>
+                            <button type="reset" class="btn btn-default" onclick="resetSearch()">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 扣费记录列表 -->
+            <div class="card">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Alert ID</th>
+                                <th>Status</th>
+                                <th>Alert Fee (USD)</th>
+                                <th>Billing Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chargeTableBody">
+                        <tr>
+                            <td>2026-01-15 10:30:00</td>
+                            <td>ALT001</td>
+                            <td><span class="status-badge status-charged">Charged</span></td>
+                            <td>10.00</td>
+                            <td>2026-01-15 10:35:00</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-14 14:20:00</td>
+                            <td>ALT002</td>
+                            <td><span class="status-badge status-charged">Charged</span></td>
+                            <td>15.00</td>
+                            <td>2026-01-14 14:25:00</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-13 09:15:00</td>
+                            <td>ALT003</td>
+                            <td><span class="status-badge status-uncharged">Uncharged</span></td>
+                            <td>20.00</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-12 16:45:00</td>
+                            <td>ALT004</td>
+                            <td><span class="status-badge status-uncharged">Uncharged</span></td>
+                            <td>12.50</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button>Previous</button>
+                    <button class="active">1</button>
+                    <button>2</button>
+                    <button>Next</button>
+                </div>
+            </div>
+        </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="../ui-components/js/common.js"></script>
+    <script>
+        // 初始化：设置默认日期范围（最近30天，包括今天）
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            // 设置默认日期
+            document.getElementById('searchStartDate').value = formatDate(thirtyDaysAgo);
+            document.getElementById('searchEndDate').value = formatDate(today);
+        });
+
+        // 搜索扣费记录
+        function searchCharges() {
+            const startDate = document.getElementById('searchStartDate').value;
+            const endDate = document.getElementById('searchEndDate').value;
+            const alertId = document.getElementById('searchAlertId').value.trim();
+            const status = document.getElementById('searchStatus').value;
+
+            // 去除Alert ID前后空格
+            if (alertId) {
+                document.getElementById('searchAlertId').value = alertId;
+            }
+
+            alert('Search functionality requires backend API\n' +
+                  'Start Date: ' + (startDate || 'Not set') + '\n' +
+                  'End Date: ' + (endDate || 'Not set') + '\n' +
+                  'Alert ID: ' + (alertId || 'Not set') + '\n' +
+                  'Status: ' + (status || 'All'));
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            document.getElementById('searchStartDate').value = formatDate(thirtyDaysAgo);
+            document.getElementById('searchEndDate').value = formatDate(today);
+            document.getElementById('searchAlertId').value = '';
+            document.getElementById('searchStatus').value = '';
+        }
+    </script>
+</body>
+</html>
