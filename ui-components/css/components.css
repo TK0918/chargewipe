@@ -176,33 +176,45 @@
   resize: vertical;
 }
 
-/* 标签样式 */
+/* 标签样式 - 状态展示统一使用此样式 */
 .tag {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 12px;
   font-weight: 500;
+  border: 1px solid;
+  white-space: nowrap; /* 状态文案不换行 */
 }
 
 .tag-success {
-  background-color: #d1fae5;
+  background: #d1fae5;
   color: #065f46;
+  border-color: #10b981;
 }
 
 .tag-warning {
-  background-color: #fef3c7;
+  background: #fef3c7;
   color: #92400e;
+  border-color: #fbbf24;
 }
 
 .tag-danger {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #991b1b;
+  border-color: #ef4444;
 }
 
 .tag-info {
-  background-color: #dbeafe;
+  background: #dbeafe;
   color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.tag-disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-color: #9ca3af;
 }
 
 /* 统计卡片样式 */

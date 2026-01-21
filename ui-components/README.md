@@ -150,6 +150,33 @@ ui-components/
 - 按钮组不换行 (`flex-wrap: nowrap`)
 - 统一的间距和样式
 
+### 状态标签
+
+统一的状态展示标签样式:
+
+```html
+<span class="tag tag-success">正常</span>
+<span class="tag tag-warning">待处理</span>
+<span class="tag tag-danger">失败</span>
+<span class="tag tag-info">信息</span>
+<span class="tag tag-disabled">停用</span>
+```
+
+**标签类型**:
+- `.tag-success`: 绿色背景 (成功/正常状态)
+- `.tag-warning`: 黄色背景 (警告/待处理状态)
+- `.tag-danger`: 红色背景 (危险/失败状态)
+- `.tag-info`: 蓝色背景 (信息状态)
+- `.tag-disabled`: 灰色背景 (停用/禁用状态)
+
+**特点**:
+- 统一的内边距 `4px 12px`
+- 统一的字体大小 `12px`
+- 统一的圆角 `4px`
+- 所有标签都有边框，颜色与背景色协调
+- **状态文案不换行** (`white-space: nowrap`)
+- 用于表格、列表等场景的状态展示
+
 ### 分页组件
 
 支持每页条数选择的分页组件:

@@ -57,31 +57,6 @@
             padding-left: 24px;
             border-left: 2px solid #f97316;
         }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .status-processing {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fbbf24;
-        }
-        .status-active {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #10b981;
-        }
-        .status-failed {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
-        .status-disabled {
-            background: #f3f4f6;
-            color: #6b7280;
-            border: 1px solid #9ca3af;
-        }
         .table-container {
             overflow-x: auto;
             width: 100%;
@@ -256,7 +231,7 @@
                                 <td>ETHOCA, RDR</td>
                                 <td>Provider A</td>
                                 <td>alerts@example.com</td>
-                                <td><span class="status-badge status-active">Active</span></td>
+                                <td><span class="tag tag-success">Active</span></td>
                                 <td>2024-12-02 09:00:00</td>
                                 <td>
                                     <div class="action-buttons">
@@ -271,7 +246,7 @@
                                 <td>ETHOCA</td>
                                 <td>Provider B</td>
                                 <td>notify@example.com</td>
-                                <td><span class="status-badge status-processing">Processing</span></td>
+                                <td><span class="tag tag-warning">Processing</span></td>
                                 <td>2024-12-10 14:30:00</td>
                                 <td>
                                     <div class="action-buttons">
@@ -284,7 +259,7 @@
                                 <td>RDR</td>
                                 <td>Provider A</td>
                                 <td>alerts@example.com</td>
-                                <td><span class="status-badge status-failed">Failed</span></td>
+                                <td><span class="tag tag-danger">Failed</span></td>
                                 <td>2024-12-08 11:20:00</td>
                                 <td>
                                     <div class="action-buttons">
@@ -454,12 +429,12 @@
                         </thead>
                         <tbody id="statusHistory">
                             <tr>
-                                <td><span class="status-badge status-active">Active</span></td>
+                                <td><span class="tag tag-success">Active</span></td>
                                 <td>2024-12-05 10:00:00</td>
                                 <td>Provider approved</td>
                             </tr>
                             <tr>
-                                <td><span class="status-badge status-processing">Processing</span></td>
+                                <td><span class="tag tag-warning">Processing</span></td>
                                 <td>2024-12-02 09:00:00</td>
                                 <td>Submitted to provider</td>
                             </tr>
@@ -523,7 +498,7 @@
             document.getElementById('detailModes').textContent = 'ETHOCA, RDR';
             document.getElementById('detailProvider').textContent = 'Provider A';
             document.getElementById('detailEmail').textContent = 'alerts@example.com';
-            document.getElementById('detailStatus').innerHTML = '<span class="status-badge status-active">Active</span>';
+            document.getElementById('detailStatus').innerHTML = '<span class="tag tag-success">Active</span>';
             document.getElementById('detailBin').textContent = '123456';
             document.getElementById('detailCaid').textContent = 'CAID001';
             document.getElementById('detailCreatedAt').textContent = '2024-12-02 09:00:00';

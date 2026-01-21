@@ -15,31 +15,6 @@
     <link rel="stylesheet" href="../ui-components/css/components.css">
     
     <style>
-        .status-pending-provider {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fbbf24;
-        }
-        .status-pending-feedback {
-            background: #dbeafe;
-            color: #1e40af;
-            border: 1px solid #3b82f6;
-        }
-        .status-pending-manual {
-            background: #fed7aa;
-            color: #9a3412;
-            border: 1px solid #fb923c;
-        }
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #10b981;
-        }
-        .status-failed {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -346,7 +321,7 @@
                                                 <td>ETHOCA</td>
                                                 <td>MYSHOP*STORE</td>
                                                 <td>-</td>
-                                                <td><span class="status-badge status-pending-provider">待选择服务商</span></td>
+                                                <td><span class="tag tag-warning">待选择服务商</span></td>
                                                 <td>-</td>
                                                 <td>-</td>
                                                 <td>-</td>
@@ -367,7 +342,7 @@
                                                 <td>RDR</td>
                                                 <td>STORE*SHOP</td>
                                                 <td>服务商A</td>
-                                                <td><span class="status-badge status-pending-feedback">待服务商反馈</span></td>
+                                                <td><span class="tag tag-info">待服务商反馈</span></td>
                                                 <td>张三(zhangsan@example.com)</td>
                                                 <td>2026-01-14 15:00:00</td>
                                                 <td>-</td>
@@ -387,7 +362,7 @@
                                                 <td>ETHOCA</td>
                                                 <td>SHOP*MYSTORE</td>
                                                 <td>服务商B</td>
-                                                <td><span class="status-badge status-pending-manual">待人工手动处理</span></td>
+                                                <td><span class="tag tag-warning">待人工手动处理</span></td>
                                                 <td>李四(lisi@example.com)</td>
                                                 <td>2026-01-13 10:00:00</td>
                                                 <td>服务商无API接口</td>
@@ -638,7 +613,7 @@
             document.getElementById('detailAlertType').textContent = 'ETHOCA';
             document.getElementById('detailDescriptor').textContent = 'MYSHOP*STORE';
             document.getElementById('detailProvider').textContent = '-';
-            document.getElementById('detailStatus').innerHTML = '<span class="status-badge status-pending-provider">待选择服务商</span>';
+            document.getElementById('detailStatus').innerHTML = '<span class="tag tag-warning">待选择服务商</span>';
             document.getElementById('detailFollower').textContent = '-';
             document.getElementById('detailFollowTime').textContent = '-';
             document.getElementById('detailRemarks').textContent = '-';

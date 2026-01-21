@@ -88,42 +88,6 @@
         .tab-content.active {
             display: block;
         }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            display: inline-block;
-        }
-        .status-in-progress {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fbbf24;
-        }
-        .status-completed {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #10b981;
-        }
-        .status-failed {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fbbf24;
-        }
-        .status-under-review {
-            background: #fef3c7;
-            color: #92400e;
-            border: 1px solid #fbbf24;
-        }
-        .status-successful {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #10b981;
-        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -356,7 +320,7 @@
                                 <td>2026-01-14 15:20:00</td>
                                 <td>PayPal</td>
                                 <td>2011375861276127232</td>
-                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td><span class="tag tag-success">Completed</span></td>
                                 <td>USD</td>
                                 <td>500.00</td>
                                 <td>USD</td>
@@ -369,7 +333,7 @@
                                 <td>2026-01-13 10:00:00</td>
                                 <td>Stripe</td>
                                 <td>2011375861276127233</td>
-                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td><span class="tag tag-warning">Pending</span></td>
                                 <td>USD</td>
                                 <td>200.00</td>
                                 <td>USD</td>
@@ -382,7 +346,7 @@
                                 <td>2026-01-12 09:30:00</td>
                                 <td>PayPal</td>
                                 <td>2011375861276127234</td>
-                                <td><span class="status-badge status-failed">Failed</span></td>
+                                <td><span class="tag tag-danger">Failed</span></td>
                                 <td>USD</td>
                                 <td>100.00</td>
                                 <td>USD</td>
@@ -472,7 +436,7 @@
                                 <td>USD</td>
                                 <td>1000.00</td>
                                 <td>abc123123</td>
-                                <td><span class="status-badge status-successful">Successful</span></td>
+                                <td><span class="tag tag-success">Successful</span></td>
                                 <td>USD</td>
                                 <td>1000.00</td>
                                 <td>2026-01-13 16:30:00</td>
@@ -486,7 +450,7 @@
                                 <td>USD</td>
                                 <td>500.00</td>
                                 <td>xyz789789</td>
-                                <td><span class="status-badge status-under-review">Under Review</span></td>
+                                <td><span class="tag tag-warning">Under Review</span></td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>-</td>
@@ -500,7 +464,7 @@
                                 <td>USD</td>
                                 <td>200.00</td>
                                 <td>def456456</td>
-                                <td><span class="status-badge status-failed">Failed</span></td>
+                                <td><span class="tag tag-danger">Failed</span></td>
                                 <td>-</td>
                                 <td>-</td>
                                 <td>2026-01-11 10:00:00</td>
