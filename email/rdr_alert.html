@@ -3,112 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDR Chargeback Alert Notification</title>
+    <title>New Alert Notification</title>
     <style>
         body {
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
             font-family: Arial, sans-serif;
-            line-height: 1.6;
             color: #333333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
         }
         .email-container {
+            max-width: 620px;
+            margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #ececec;
         }
         .header {
-            border-bottom: 3px solid #0066cc;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding: 28px 34px;
+            border-bottom: 1px solid #ececec;
+            text-align: right;
         }
         .header h1 {
-            color: #0066cc;
             margin: 0;
-            font-size: 24px;
+            font-size: 36px;
+            line-height: 1.2;
+            color: #0e1f4f;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
         .content {
-            margin-bottom: 30px;
+            padding: 28px 34px 36px;
+            font-size: 30px;
+            line-height: 1.6;
         }
-        .content p {
-            margin: 15px 0;
-            font-size: 14px;
+        .greeting {
+            margin: 0 0 18px;
+            font-weight: 700;
+            color: #17224d;
         }
-        .highlight {
-            font-weight: bold;
-            color: #0066cc;
+        .intro {
+            margin: 0 0 14px;
+            color: #4a4a4a;
         }
-        .alert-info {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0 26px;
+            font-size: 28px;
         }
-        .alert-info p {
-            margin: 5px 0;
+        .detail-table tr {
+            border-top: 1px solid #e6e6e6;
         }
-        .info-section {
-            background-color: #e7f3ff;
-            border-left: 4px solid #0066cc;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
+        .detail-table tr:last-child {
+            border-bottom: 1px solid #e6e6e6;
         }
-        .info-section p {
-            margin: 5px 0;
+        .detail-table td {
+            padding: 10px 0;
+            vertical-align: middle;
         }
-        .footer {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 20px;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #666666;
+        .detail-table td.label {
+            width: 44%;
+            color: #3d3d3d;
+            padding-right: 20px;
+        }
+        .detail-table td.value {
+            width: 56%;
+            color: #555555;
+            text-align: left;
+            word-break: break-word;
+        }
+        .action {
             text-align: center;
+            margin: 26px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #41bfdc;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 28px;
+            font-weight: 700;
+            padding: 10px 34px;
+        }
+        .signature {
+            margin-top: 30px;
+            color: #4a4a4a;
+        }
+        .signature p {
+            margin: 0;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>RDR Chargeback Alert Notification</h1>
+            <h1>New Alert Notification</h1>
         </div>
-        
         <div class="content">
-            <p>Dear Valued Customer,</p>
-            
-            <p>We are writing to inform you that we have received a chargeback alert for your account.</p>
-            
-            <div class="alert-info">
-                <p><strong>Alert Details:</strong></p>
-                <p><strong>Descriptor:</strong> <span class="highlight">[Descriptor]</span></p>
-                <p><strong>Chargeback Alert ID:</strong> <span class="highlight">[Chargeback Alert ID]</span></p>
-                <p><strong>Transaction Time:</strong> <span class="highlight">[Transaction Time]</span></p>
-                <p><strong>Transaction Card ID (Last 4):</strong> <span class="highlight">[Transaction Card ID - Last 4]</span></p>
-                <p><strong>ARN:</strong> <span class="highlight">[ARN]</span></p>
-                <p><strong>Cutoff Time:</strong> <span class="highlight">[Cutoff Time]</span></p>
-                <p><strong>CAID:</strong> <span class="highlight">[CAID]</span></p>
-                <p><strong>BIN:</strong> <span class="highlight">[BIN]</span></p>
-                <p><strong>Dispute Amount:</strong> <span class="highlight">[Dispute Amount]</span></p>
+            <p class="greeting">Hi There,</p>
+            <p class="intro">Please be advised that there is a new Verifi-RDR DISPUTE_RDR Alert available for you to view.</p>
+            <p class="intro">RDRs are automatically resolved by Visa on behalf of the Issuer, meaning they require no further action. This Email is a notification of an RDR Resolved or Declined alert and is provided for your reconciliation purposes only.</p>
+
+            <table class="detail-table" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td class="label">Alert ID:</td>
+                    <td class="value">[Chargeback Alert ID]</td>
+                </tr>
+                <tr>
+                    <td class="label">Descriptor:</td>
+                    <td class="value">[Descriptor]</td>
+                </tr>
+                <tr>
+                    <td class="label">Transaction Date:</td>
+                    <td class="value">[Transaction Time]</td>
+                </tr>
+                <tr>
+                    <td class="label">Amount:</td>
+                    <td class="value">[Dispute Amount]</td>
+                </tr>
+                <tr>
+                    <td class="label">Card Number:</td>
+                    <td class="value">************[Transaction Card ID - Last 4]</td>
+                </tr>
+                <tr>
+                    <td class="label">ARN:</td>
+                    <td class="value">[ARN]</td>
+                </tr>
+                <tr>
+                    <td class="label">Provider:</td>
+                    <td class="value">Verifi-RDR</td>
+                </tr>
+            </table>
+
+            <div class="action">
+                <a href="[System Link]" class="button">View Alert</a>
             </div>
-            
-            <div class="info-section">
-                <p><strong>For Your Information:</strong></p>
-                <p>This notification is for informational purposes only. No action is required from your side at this time.</p>
-                <p>We will continue to monitor this situation and keep you informed of any updates.</p>
+
+            <div class="signature">
+                <p>Thanks,</p>
+                <p>The Chargewipe Support Team</p>
             </div>
-            
-            <p>If you have any questions or concerns, please do not hesitate to contact our support team.</p>
-            
-            <p>Thank you for your attention.</p>
-        </div>
-        
-        <div class="footer">
-            <p>This is an automated notification. Please do not reply to this email.</p>
-            <p>&copy; 2025 Chargewipe. All rights reserved.</p>
         </div>
     </div>
 </body>
